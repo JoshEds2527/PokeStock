@@ -41,7 +41,7 @@ export function FinanceChart({ data }: { data: Point[] }) {
             tickFormatter={(v) => `£${v}`}
             width={56}
           />
-          <Tooltip formatter={(value: number) => gbp.format(value)} />
+          <Tooltip formatter={(value) => gbp.format(Number(value))} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           <Line
             type="monotone"

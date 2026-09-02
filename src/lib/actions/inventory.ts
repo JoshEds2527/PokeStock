@@ -74,6 +74,69 @@ export async function addPurchaseAction(
   return { success: true };
 }
 
+export async function updateProductAction(
+  _prevState: ActionResult | undefined,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireUserId();
+
+  const id = String(formData.get("id") || "");
+  const name = String(formData.get("name") || "").trim();
+  const setName = String(formData.get("setName") || "").trim();
+  const category = String(formData.get("category") || "OTHER") as ProductCategory;
+  const msrpRaw = String(formData.get("msrp") || "").trim();
+
+  if (!id) return { error: "Missing product." };
+  if (!name) return { error: "Product name is required." };
+
+  await prisma.product.update({
+    where: { id },
+    data: {
+      name,
+      setName: setName || null,
+      category,
+      msrp: msrpRaw ? Number(msrpRaw) : null,
+    },
+  });
+
+  revalidatePath("/inventory");
+  revalidatePath("/");
+  return { success: true };
+}
+
+export async function updatePurchaseAction(
+  _prevState: ActionResult | undefined,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireUserId();
+
+  const id = String(formData.get("id") || "");
+  const quantity = Number(formData.get("quantity") || 0);
+  const unitCost = Number(formData.get("unitCost") || 0);
+  const retailer = String(formData.get("retailer") || "").trim();
+  const purchaseDateRaw = String(formData.get("purchaseDate") || "");
+  const notes = String(formData.get("notes") || "").trim();
+
+  if (!id) return { error: "Missing purchase." };
+  if (!quantity || quantity <= 0) return { error: "Quantity must be greater than 0." };
+  if (unitCost < 0 || Number.isNaN(unitCost)) return { error: "Enter a valid unit cost." };
+
+  await prisma.purchase.update({
+    where: { id },
+    data: {
+      quantity,
+      unitCost,
+      retailer: retailer || null,
+      purchaseDate: purchaseDateRaw ? new Date(purchaseDateRaw) : new Date(),
+      notes: notes || null,
+    },
+  });
+
+  revalidatePath("/inventory");
+  revalidatePath("/");
+  return { success: true };
+}
+
 export async function deleteProductAction(formData: FormData) {
   await requireUserId();
   const id = String(formData.get("id") || "");

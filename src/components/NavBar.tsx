@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/actions/auth";
+import { Logo } from "@/components/Logo";
 
 const links = [
   { href: "/", label: "Dashboard", icon: "📊" },
@@ -19,7 +20,10 @@ export function NavBar({ userName }: { userName: string }) {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-56 border-r border-slate-200 bg-white px-4 py-6">
-        <h1 className="text-lg font-bold text-slate-900 mb-1">PokéStock</h1>
+        <div className="flex items-center gap-2 mb-1">
+          <Logo />
+          <h1 className="text-lg font-bold text-slate-900">PokéStock</h1>
+        </div>
         <p className="text-xs text-slate-500 mb-6">Signed in as {userName}</p>
         <nav className="flex flex-col gap-1">
           {links.map((link) => {
@@ -49,7 +53,10 @@ export function NavBar({ userName }: { userName: string }) {
 
       {/* Mobile top bar */}
       <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
-        <h1 className="text-base font-bold text-slate-900">PokéStock</h1>
+        <div className="flex items-center gap-2">
+          <Logo size={24} />
+          <h1 className="text-base font-bold text-slate-900">PokéStock</h1>
+        </div>
         <form action={logoutAction}>
           <button className="text-xs text-slate-500">Sign out</button>
         </form>

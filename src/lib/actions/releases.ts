@@ -52,6 +52,40 @@ export async function deleteReleaseAction(formData: FormData) {
   revalidatePath("/releases");
 }
 
+export async function updateReleaseAction(
+  _prevState: ActionResult | undefined,
+  formData: FormData
+): Promise<ActionResult> {
+  await requireUserId();
+
+  const id = String(formData.get("id") || "");
+  const productName = String(formData.get("productName") || "").trim();
+  const retailer = String(formData.get("retailer") || "").trim();
+  const releaseDateRaw = String(formData.get("releaseDate") || "");
+  const url = String(formData.get("url") || "").trim();
+  const status = String(formData.get("status") || "UPCOMING") as ReleaseStatus;
+  const notes = String(formData.get("notes") || "").trim();
+
+  if (!id) return { error: "Missing release." };
+  if (!productName) return { error: "Product name is required." };
+  if (!releaseDateRaw) return { error: "Release date is required." };
+
+  await prisma.releaseEvent.update({
+    where: { id },
+    data: {
+      productName,
+      retailer: retailer || null,
+      releaseDate: new Date(releaseDateRaw),
+      url: url || null,
+      status,
+      notes: notes || null,
+    },
+  });
+
+  revalidatePath("/releases");
+  return { success: true };
+}
+
 export async function updateReleaseStatusAction(formData: FormData) {
   await requireUserId();
   const id = String(formData.get("id") || "");

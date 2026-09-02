@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  createdAt     DateTime  @default(now())
+
+  purchases     Purchase[]
+  sales         Sale[]
+}
+
+enum ProductCategory {
+  BOOSTER_BOX
+  ELITE_TRAINER_BOX
+  BOOSTER_BUNDLE
+  BOOSTER_PACK
+  TIN
+  SINGLE_CARD
+  COLLECTION_BOX
+  OTHER
+}
+
+model Product {
+  id          String            @id @default(cuid())
+  name        String
+  setName     String?
+  category    ProductCategory   @default(OTHER)
+  imageUrl    String?
+  msrp        Float?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  purchases   Purchase[]
+  sales       Sale[]
+  watches     StockWatch[]
+  listings    MarketListing[]
+}
+
+model Purchase {
+  id            String    @id @default(cuid())
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId     String
+  quantity      Int
+  unitCost      Float
+  retailer      String?
+  purchaseDate  DateTime  @default(now())
+  notes         String?
+  createdBy     User?     @relation(fields: [createdById], references: [id])
+  createdById   String?
+  createdAt     DateTime  @default(now())
+}
+
+enum SalePlatform {
+  EBAY
+  VINTED
+  FACEBOOK
+  DEPOP
+  IN_PERSON
+  OTHER
+}
+
+model Sale {
+  id              String        @id @default(cuid())
+  product         Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId       String
+  quantity        Int
+  unitSalePrice   Float
+  platform        SalePlatform  @default(OTHER)
+  fees            Float         @default(0)
+  shippingCost    Float         @default(0)
+  saleDate        DateTime      @default(now())
+  notes           String?
+  createdBy       User?         @relation(fields: [createdById], references: [id])
+  createdById     String?
+  createdAt       DateTime      @default(now())
+}
+
+enum ReleaseStatus {
+  UPCOMING
+  RELEASED
+  DELAYED
+  CANCELLED
+}
+
+model ReleaseEvent {
+  id            String        @id @default(cuid())
+  productName   String
+  retailer      String?
+  releaseDate   DateTime
+  url           String?
+  status        ReleaseStatus @default(UPCOMING)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum ListingSource {
+  EBAY
+  VINTED
+  OTHER
+}
+
+model MarketListing {
+  id          String        @id @default(cuid())
+  product     Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productId   String?
+  source      ListingSource
+  title       String
+  price       Float
+  url         String
+  sold        Boolean       @default(false)
+  listedAt    DateTime?
+  fetchedAt   DateTime      @default(now())
+}
+
+enum StockStatus {
+  UNKNOWN
+  IN_STOCK
+  OUT_OF_STOCK
+}
+
+model StockWatch {
+  id                  String       @id @default(cuid())
+  product             Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productId           String?
+  retailerName        String
+  url                 String
+  status              StockStatus  @default(UNKNOWN)
+  lastCheckedAt       DateTime?
+  checkIntervalMinutes Int         @default(30)
+  active              Boolean      @default(true)
+  createdAt           DateTime     @default(now())
+}

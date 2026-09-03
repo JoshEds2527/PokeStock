@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Stock, sales, and market tracker for Pokémon reselling",
     start_url: "/",
     display: "standalone",
-    background_color: "#0f172a",
-    theme_color: "#4f46e5",
+    background_color: "#04141a",
+    theme_color: "#22d3ee",
     icons: [
       {
         src: "/icon/192",

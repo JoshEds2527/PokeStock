@@ -21,6 +21,9 @@ from every other account.
 - **Releases** — a shared catalog of upcoming product releases (visible to every account, deduplicated by product name + date), with a personal "tracked releases" list layered on top so each account only follows what it cares about. Only the **developer account** can add, edit, or delete entries in the shared catalog; every other account can only track/untrack.
 - **Admin** (`/admin`, developer account only) — lists every registered account (joined date, last login, product/sale counts) with a delete action, for removing inactive or unwanted accounts.
 - **Market** (placeholder) — quick manual links to eBay sold listings and Vinted search per product. Live automated market data and stock-alert monitoring are phase 2 (see below).
+- **Password reset** (`/forgot-password`, `/reset-password`) — email a single-use, 1-hour link. See [Password reset & email](#password-reset--email) below for how it sends (or doesn't) email locally.
+- **Rate limiting** — login, registration, and password-reset requests are all limited (5 per 15 minutes, tracked in the database so it holds up across serverless instances) to blunt brute-forcing and spam.
+- **PWA basics** — a real app icon and manifest, so "Add to Home Screen" gets a proper name and icon instead of a generic bookmark.
 
 Every list supports sorting and filtering, every entry can be edited in place, and every delete requires confirmation.
 
@@ -80,10 +83,33 @@ npm run create-account -- "Name" "email@example.com" "password"
 
 Re-running with the same email updates that account's name/password rather than creating a duplicate.
 
+## Password reset & email
+
+Forgot-password emails are sent through [Resend](https://resend.com)'s HTTP API
+via plain `fetch` — no SDK to install. Without `RESEND_API_KEY` set, the email
+is instead logged to the server console (masked recipient address, full link),
+which is enough to develop and test the flow locally without sending anything.
+
+To make it actually send in production:
+
+1. Sign up for Resend (free tier is plenty for this) and create an API key.
+2. Set `RESEND_API_KEY` in your environment.
+3. Verify a sending domain in Resend and set `EMAIL_FROM` to an address on it
+   (e.g. `PokéStock <noreply@yourdomain.com>`). Until you do, Resend's shared
+   `onboarding@resend.dev` sender only delivers to *your own* Resend account
+   email — fine for just you, not for other people's accounts requesting resets.
+
+Every reset email/log line shows a **masked** version of the address
+(`p******s@g***l.com`) rather than the real one, both in the server log and on
+the reset-password page itself, so a leaked log line or shared screenshot
+doesn't expose the full address.
+
 ## Environment variables (`.env`)
 
 - `DATABASE_URL` — SQLite file path locally (`file:./dev.db`); a PostgreSQL connection string in production.
 - `AUTH_SECRET` — random secret used to sign session cookies. A value has already been generated for you; keep it out of git (it already is, via `.gitignore`) and don't reuse it elsewhere.
+- `RESEND_API_KEY` (optional) — enables real password-reset emails; see [Password reset & email](#password-reset--email) above.
+- `EMAIL_FROM` (optional) — the "from" address for reset emails once you've verified a domain with Resend.
 
 ## Deploying so you can use it from your phones
 
@@ -111,6 +137,7 @@ This app needs a real, persistent database in production — SQLite (a local fil
 5. **Set environment variables in Vercel** (Project Settings → Environment Variables):
    - `DATABASE_URL` — your Postgres connection string.
    - `AUTH_SECRET` — generate a new one for production, e.g. run `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` and paste the result.
+   - `RESEND_API_KEY` and `EMAIL_FROM` (optional) — for password-reset emails to actually send; see [Password reset & email](#password-reset--email).
 6. **Deploy.** Vercel runs `npm install` (which runs `prisma generate` via the `postinstall` script) and `npm run build` automatically.
 7. **Register your account** at the deployed URL's `/register` page (or run `npm run create-account` locally with your production `DATABASE_URL` temporarily set in `.env`).
 8. Open the Vercel URL on your phones and add it to your home screen (Safari/Chrome → Share → Add to Home Screen) — it behaves like an app.

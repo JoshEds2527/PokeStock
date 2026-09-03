@@ -2,13 +2,24 @@
 
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 import { setSessionCookie, clearSessionCookie } from "@/lib/auth";
 import { randomPokemonId, isValidPokemonId } from "@/lib/pokemon";
+import { isRateLimited, recordAttempt, clearAttempts, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
 
 function resolvePokemonId(formData: FormData): number {
   const raw = Number(formData.get("pokemonId"));
   return isValidPokemonId(raw) ? raw : randomPokemonId();
+}
+
+async function clientIp() {
+  const headersList = await headers();
+  return (
+    headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    headersList.get("x-real-ip") ||
+    "unknown"
+  );
 }
 
 export async function loginAction(
@@ -24,15 +35,23 @@ export async function loginAction(
     return { error: "Enter your email and password." };
   }
 
+  if (await isRateLimited(email, "login")) {
+    return { error: RATE_LIMIT_MESSAGE };
+  }
+
   const account = await prisma.account.findUnique({ where: { email } });
   if (!account) {
+    await recordAttempt(email, "login");
     return { error: "Incorrect email or password." };
   }
 
   const valid = await bcrypt.compare(password, account.passwordHash);
   if (!valid) {
+    await recordAttempt(email, "login");
     return { error: "Incorrect email or password." };
   }
+
+  await clearAttempts(email, "login");
 
   await prisma.account.update({
     where: { id: account.id },
@@ -70,6 +89,12 @@ export async function registerAction(
   if (password !== confirmPassword) {
     return { error: "Passwords don't match." };
   }
+
+  const ip = await clientIp();
+  if (await isRateLimited(ip, "register")) {
+    return { error: RATE_LIMIT_MESSAGE };
+  }
+  await recordAttempt(ip, "register");
 
   const existing = await prisma.account.findUnique({ where: { email } });
   if (existing) {

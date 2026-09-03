@@ -22,13 +22,40 @@ model Account {
   createdAt     DateTime  @default(now())
   lastLoginAt   DateTime?
 
-  products        Product[]
-  purchases       Purchase[]
-  sales           Sale[]
-  createdReleases ReleaseEvent[]
-  trackedReleases TrackedRelease[]
-  marketListings  MarketListing[]
-  stockWatches    StockWatch[]
+  products            Product[]
+  purchases           Purchase[]
+  sales               Sale[]
+  createdReleases     ReleaseEvent[]
+  trackedReleases     TrackedRelease[]
+  marketListings      MarketListing[]
+  stockWatches        StockWatch[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+// A password-reset link: the raw token is emailed to the user, only its
+// hash is stored, so a database read alone can't be used to reset a
+// password. Single-use (usedAt) and short-lived (expiresAt).
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([accountId])
+}
+
+// Generic rate-limiting counter, backed by the database rather than
+// in-memory, so it works correctly across serverless invocations.
+model RateLimitAttempt {
+  id         String   @id @default(cuid())
+  identifier String
+  action     String
+  createdAt  DateTime @default(now())
+
+  @@index([identifier, action, createdAt])
 }
 
 enum ProductCategory {

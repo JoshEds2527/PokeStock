@@ -26,7 +26,7 @@ export function LegalPage({
           </div>
         </div>
 
-        <div className="flex gap-4 justify-center mt-6 text-sm text-white/60">
+        <div className="flex gap-4 justify-center mt-6 text-sm text-white drop-shadow">
           <Link href="/terms" className="hover:underline">
             Terms of Service
           </Link>

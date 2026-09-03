@@ -211,40 +211,52 @@ function EditProductForm({
   return (
     <form action={action} className="space-y-3">
       <input type="hidden" name="id" value={row.id} />
-      <input
-        name="name"
-        defaultValue={row.name}
-        required
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-      />
-      <div className="grid grid-cols-2 gap-2">
-        <select
-          name="category"
-          defaultValue={row.category}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        >
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c.replace(/_/g, " ")}
-            </option>
-          ))}
-        </select>
+      <label className="block text-sm">
+        <span className="block text-xs font-medium text-slate-500 mb-1">Product name</span>
         <input
-          name="msrp"
-          type="number"
-          step="0.01"
-          min="0"
-          defaultValue={row.msrp ?? ""}
-          placeholder="MSRP £"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          name="name"
+          defaultValue={row.name}
+          required
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
         />
+      </label>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Category</span>
+          <select
+            name="category"
+            defaultValue={row.category}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          >
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c.replace(/_/g, " ")}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">MSRP (£)</span>
+          <input
+            name="msrp"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={row.msrp ?? ""}
+            placeholder="MSRP £"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
       </div>
-      <input
-        name="setName"
-        defaultValue={row.setName ?? ""}
-        placeholder="Set (optional)"
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-      />
+      <label className="block text-sm">
+        <span className="block text-xs font-medium text-slate-500 mb-1">Set (optional)</span>
+        <input
+          name="setName"
+          defaultValue={row.setName ?? ""}
+          placeholder="Set (optional)"
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+        />
+      </label>
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
       <button
         type="submit"

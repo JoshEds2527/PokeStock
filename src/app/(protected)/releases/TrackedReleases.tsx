@@ -36,7 +36,7 @@ export function TrackedReleases({
   return (
     <div className="space-y-3">
       {sorted.length === 0 && (
-        <p className="text-sm text-white/60 drop-shadow">
+        <p className="text-sm text-white drop-shadow">
           You&apos;re not tracking any releases yet — browse the shared list below and tap
           &quot;Track&quot; on anything you want to keep an eye on.
         </p>

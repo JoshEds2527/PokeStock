@@ -204,61 +204,79 @@ function EditSaleForm({ row, onDone }: { row: SaleRow; onDone: () => void }) {
       <input type="hidden" name="id" value={row.id} />
       <p className="text-sm text-slate-500">{row.productName}</p>
       <div className="grid grid-cols-2 gap-2">
-        <input
-          name="quantity"
-          type="number"
-          min="1"
-          defaultValue={row.quantity}
-          required
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        />
-        <input
-          name="unitSalePrice"
-          type="number"
-          step="0.01"
-          min="0"
-          defaultValue={row.unitSalePrice}
-          required
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        />
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Quantity</span>
+          <input
+            name="quantity"
+            type="number"
+            min="1"
+            defaultValue={row.quantity}
+            required
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Unit sale price (£)</span>
+          <input
+            name="unitSalePrice"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={row.unitSalePrice}
+            required
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
       </div>
       <div className="grid grid-cols-3 gap-2">
-        <select
-          name="platform"
-          defaultValue={row.platform}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        >
-          {platforms.map((p) => (
-            <option key={p} value={p}>
-              {p.replace(/_/g, " ")}
-            </option>
-          ))}
-        </select>
-        <input
-          name="fees"
-          type="number"
-          step="0.01"
-          min="0"
-          defaultValue={row.fees}
-          placeholder="Fees £"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        />
-        <input
-          name="shippingCost"
-          type="number"
-          step="0.01"
-          min="0"
-          defaultValue={row.shippingCost}
-          placeholder="Postage £"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        />
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Platform</span>
+          <select
+            name="platform"
+            defaultValue={row.platform}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          >
+            {platforms.map((p) => (
+              <option key={p} value={p}>
+                {p.replace(/_/g, " ")}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Fees (£)</span>
+          <input
+            name="fees"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={row.fees}
+            placeholder="Fees £"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Postage (£)</span>
+          <input
+            name="shippingCost"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={row.shippingCost}
+            placeholder="Postage £"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
       </div>
-      <input
-        name="saleDate"
-        type="date"
-        defaultValue={row.saleDate.slice(0, 10)}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-      />
+      <label className="block text-sm">
+        <span className="block text-xs font-medium text-slate-500 mb-1">Sale date</span>
+        <input
+          name="saleDate"
+          type="date"
+          defaultValue={row.saleDate.slice(0, 10)}
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+        />
+      </label>
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
       <button
         type="submit"

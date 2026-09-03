@@ -37,7 +37,7 @@ export default async function ReleasesPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-xl font-bold text-white drop-shadow">Releases</h1>
-        <p className="text-sm text-white/70 mt-1 drop-shadow">
+        <p className="text-sm text-white mt-1 drop-shadow">
           A shared list of upcoming Pokémon product releases. Track only the ones you
           care about &mdash; everyone sees the same catalog, but your tracked list is yours alone.
         </p>
@@ -46,7 +46,7 @@ export default async function ReleasesPage() {
       {canManage ? (
         <AddReleaseForm />
       ) : (
-        <p className="text-sm text-white/60 drop-shadow">
+        <p className="text-sm text-white drop-shadow">
           Only the PokéStock team can add or edit releases in the shared list — track
           anything you&apos;re interested in below.
         </p>

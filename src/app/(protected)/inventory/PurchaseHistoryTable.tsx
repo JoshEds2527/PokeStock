@@ -197,37 +197,49 @@ function EditPurchaseForm({ row, onDone }: { row: PurchaseRow; onDone: () => voi
       <input type="hidden" name="id" value={row.id} />
       <p className="text-sm text-slate-500">{row.productName}</p>
       <div className="grid grid-cols-2 gap-2">
-        <input
-          name="quantity"
-          type="number"
-          min="1"
-          defaultValue={row.quantity}
-          required
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        />
-        <input
-          name="unitCost"
-          type="number"
-          step="0.01"
-          min="0"
-          defaultValue={row.unitCost}
-          required
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        />
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Quantity</span>
+          <input
+            name="quantity"
+            type="number"
+            min="1"
+            defaultValue={row.quantity}
+            required
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Unit cost (£)</span>
+          <input
+            name="unitCost"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={row.unitCost}
+            required
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <input
-          name="retailer"
-          defaultValue={row.retailer ?? ""}
-          placeholder="Retailer"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        />
-        <input
-          name="purchaseDate"
-          type="date"
-          defaultValue={row.purchaseDate.slice(0, 10)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        />
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Retailer</span>
+          <input
+            name="retailer"
+            defaultValue={row.retailer ?? ""}
+            placeholder="Retailer"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="block text-xs font-medium text-slate-500 mb-1">Purchase date</span>
+          <input
+            name="purchaseDate"
+            type="date"
+            defaultValue={row.purchaseDate.slice(0, 10)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+        </label>
       </div>
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
       <button

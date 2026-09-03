@@ -31,7 +31,7 @@ export function AuthLayout({
           alt={pokemonName(pokemonId)}
           className="w-[70%] h-[70%] max-w-[420px] max-h-[420px] object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.55)]"
         />
-        <p className="absolute bottom-3 right-4 text-[11px] text-white/50 tracking-wide">
+        <p className="absolute bottom-3 right-4 text-[11px] text-white tracking-wide drop-shadow">
           Featuring {pokemonName(pokemonId)}
         </p>
       </div>
@@ -43,9 +43,9 @@ export function AuthLayout({
             <Logo size={32} />
             <h1 className="text-2xl font-bold text-white">PokéStock</h1>
           </div>
-          <p className="text-white/70 text-sm text-center mb-6">{subtitle}</p>
+          <p className="text-white text-sm text-center mb-6 drop-shadow">{subtitle}</p>
           {children}
-          <div className="flex gap-4 justify-center mt-6 text-xs text-white/50">
+          <div className="flex gap-4 justify-center mt-6 text-xs text-white drop-shadow">
             <Link href="/terms" className="hover:underline">
               Terms
             </Link>

@@ -18,12 +18,13 @@ model Account {
   passwordHash  String
   createdAt     DateTime  @default(now())
 
-  products      Product[]
-  purchases     Purchase[]
-  sales         Sale[]
-  releaseEvents ReleaseEvent[]
-  marketListings MarketListing[]
-  stockWatches  StockWatch[]
+  products        Product[]
+  purchases       Purchase[]
+  sales           Sale[]
+  createdReleases ReleaseEvent[]
+  trackedReleases TrackedRelease[]
+  marketListings  MarketListing[]
+  stockWatches    StockWatch[]
 }
 
 enum ProductCategory {
@@ -108,19 +109,38 @@ enum ReleaseStatus {
   CANCELLED
 }
 
+// ReleaseEvent is shared/global, not account-scoped: a release date is the
+// same fact for everyone. Accounts opt into following one via TrackedRelease.
+// Only the account that added an entry may edit or delete it, to stop one
+// account's mistakes (or vandalism) from affecting every other account
+// tracking the same shared list.
 model ReleaseEvent {
-  id            String        @id @default(cuid())
-  account       Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountId     String
-  productName   String
-  retailer      String?
-  releaseDate   DateTime
-  url           String?
-  status        ReleaseStatus @default(UPCOMING)
-  notes         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                  String        @id @default(cuid())
+  productName         String
+  retailer            String?
+  releaseDate         DateTime
+  url                 String?
+  status              ReleaseStatus @default(UPCOMING)
+  notes               String?
+  createdByAccount    Account?      @relation(fields: [createdByAccountId], references: [id], onDelete: SetNull)
+  createdByAccountId  String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
+  trackedBy           TrackedRelease[]
+
+  @@index([createdByAccountId])
+}
+
+model TrackedRelease {
+  id         String       @id @default(cuid())
+  account    Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId  String
+  release    ReleaseEvent @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  releaseId  String
+  createdAt  DateTime     @default(now())
+
+  @@unique([accountId, releaseId])
   @@index([accountId])
 }
 

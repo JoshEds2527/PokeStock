@@ -17,7 +17,11 @@ export function AddReleaseForm() {
       action={action}
       className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3"
     >
-      <h2 className="text-sm font-semibold text-slate-700">Add upcoming release</h2>
+      <h2 className="text-sm font-semibold text-slate-700">Add a release to the shared list</h2>
+      <p className="text-xs text-slate-400 -mt-2">
+        Visible to everyone using the app. If it already exists, we&apos;ll just track it for
+        you instead of adding a duplicate.
+      </p>
       <input
         name="productName"
         placeholder="Product name"
@@ -49,6 +53,7 @@ export function AddReleaseForm() {
         className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
       />
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.info && <p className="text-sm text-indigo-600">{state.info}</p>}
       <button
         type="submit"
         disabled={pending}

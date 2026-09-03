@@ -12,7 +12,7 @@ from every other account.
 - **Dashboard** — total spent, net revenue, profit, units in stock, and a spend-vs-revenue-vs-profit chart over time.
 - **Inventory** — add products, log purchases ("stock in"), see current stock, average cost, and total spent per product. Full purchase history with edit/delete.
 - **Sales** — log sales with platform (eBay/Vinted/Facebook/Depop/in person), fees, and postage. Sortable, filterable, editable.
-- **Releases** — track upcoming product release dates per retailer, with status (upcoming/released/delayed/cancelled). Sortable, filterable, editable.
+- **Releases** — a shared catalog of upcoming product releases (visible to every account, deduplicated by product name + date), with a personal "tracked releases" list layered on top so each account only follows what it cares about. Only the account that added a release can edit or delete it from the shared catalog; any account can track/untrack it.
 - **Market** (placeholder) — quick manual links to eBay sold listings and Vinted search per product. Live automated market data and stock-alert monitoring are phase 2 (see below).
 
 Every list supports sorting and filtering, every entry can be edited in place, and every delete requires confirmation.

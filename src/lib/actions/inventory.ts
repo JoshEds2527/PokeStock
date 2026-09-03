@@ -12,7 +12,7 @@ async function requireAccountId() {
   return session.accountId;
 }
 
-export type ActionResult = { error?: string; success?: boolean };
+export type ActionResult = { error?: string; success?: boolean; info?: string };
 
 export async function addProductAction(
   _prevState: ActionResult | undefined,

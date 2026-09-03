@@ -1,8 +1,7 @@
 "use client";
 
 import { updateReleaseStatusAction } from "@/lib/actions/releases";
-
-const statuses = ["UPCOMING", "RELEASED", "DELAYED", "CANCELLED"];
+import { statuses } from "./types";
 
 export function StatusSelect({ id, status }: { id: string; status: string }) {
   return (

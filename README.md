@@ -4,6 +4,8 @@ A stock, sales, and finance tracker for Pokémon reselling. Multi-tenant: anyone
 can register their own account, and each account's data is completely isolated
 from every other account.
 
+**Repository:** https://github.com/JoshEds2527/PokeStock
+
 ## What's here (phase 1)
 
 - **Accounts** — public registration (`/register`) plus login. Each account is

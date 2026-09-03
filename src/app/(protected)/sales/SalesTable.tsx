@@ -77,7 +77,7 @@ export function SalesTable({ rows }: { rows: SaleRow[] }) {
         <select
           value={productFilter}
           onChange={(e) => setProductFilter(e.target.value)}
-          className="text-xs rounded-lg border border-slate-300 px-2 py-1"
+          className="text-xs rounded-lg border border-slate-300 bg-white px-2 py-1 text-slate-900"
         >
           <option value="ALL">All products</option>
           {productOptions.map((name) => (
@@ -89,7 +89,7 @@ export function SalesTable({ rows }: { rows: SaleRow[] }) {
         <select
           value={platformFilter}
           onChange={(e) => setPlatformFilter(e.target.value)}
-          className="text-xs rounded-lg border border-slate-300 px-2 py-1"
+          className="text-xs rounded-lg border border-slate-300 bg-white px-2 py-1 text-slate-900"
         >
           <option value="ALL">All platforms</option>
           {platforms.map((p) => (

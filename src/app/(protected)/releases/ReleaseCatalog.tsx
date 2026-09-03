@@ -64,12 +64,12 @@ export function ReleaseCatalog({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search all releases..."
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
         >
           <option value="ALL">All statuses</option>
           {statuses.map((s) => (

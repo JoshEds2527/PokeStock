@@ -78,12 +78,12 @@ export function InventoryTable({ rows }: { rows: InventoryRow[] }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search products or set..."
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
         />
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
         >
           <option value="ALL">All categories</option>
           {categories.map((c) => (

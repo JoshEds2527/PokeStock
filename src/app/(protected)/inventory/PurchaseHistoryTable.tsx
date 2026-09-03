@@ -75,7 +75,7 @@ export function PurchaseHistoryTable({ rows }: { rows: PurchaseRow[] }) {
           <select
             value={productFilter}
             onChange={(e) => setProductFilter(e.target.value)}
-            className="text-xs rounded-lg border border-slate-300 px-2 py-1"
+            className="text-xs rounded-lg border border-slate-300 bg-white px-2 py-1 text-slate-900"
           >
             <option value="ALL">All products</option>
             {productOptions.map((name) => (

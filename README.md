@@ -26,6 +26,7 @@ from every other account.
 - **Rate limiting** — login, registration, and password-reset requests are all limited (5 per 15 minutes, tracked in the database so it holds up across serverless instances) to blunt brute-forcing and spam.
 - **PWA basics** — a real app icon and manifest, so "Add to Home Screen" gets a proper name and icon instead of a generic bookmark.
 - **Terms of Service and Privacy Policy** (`/terms`, `/privacy`) — plain-English drafts, linked from registration and every auth screen.
+- **Account settings** (`/settings`) — change your own email or password from inside the app, both requiring your current password to confirm. Rate-limited like login. If two people share one account's login, changing the password there affects both of you.
 
 Every list supports sorting and filtering, every entry can be edited in place, and every delete requires confirmation.
 
@@ -83,7 +84,7 @@ Use the public `/register` page, or create/reset one directly against the databa
 npm run create-account -- "Name" "email@example.com" "password"
 ```
 
-Re-running with the same email updates that account's name/password rather than creating a duplicate.
+Re-running with the same email updates that account's name/password rather than creating a duplicate. Once you're logged in, you don't need this script for day-to-day changes — use `/settings` instead.
 
 ## Password reset & email
 

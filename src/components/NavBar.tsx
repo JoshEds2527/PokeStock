@@ -35,7 +35,12 @@ export function NavBar({
           <SessionBadge pokemonId={pokemonId} />
           <h1 className="text-lg font-bold text-slate-900">PokéStock</h1>
         </div>
-        <p className="text-xs text-slate-500 mb-6">Signed in as {userName}</p>
+        <Link
+          href="/settings"
+          className="block text-xs text-slate-500 hover:text-slate-800 hover:underline mb-6"
+        >
+          Signed in as {userName} · Settings
+        </Link>
         <nav className="flex flex-col gap-1">
           {links.map((link) => {
             const active = pathname === link.href;
@@ -68,9 +73,14 @@ export function NavBar({
           <SessionBadge pokemonId={pokemonId} size={24} />
           <h1 className="text-base font-bold text-slate-900">PokéStock</h1>
         </div>
-        <form action={logoutAction}>
-          <button className="text-xs text-slate-500">Sign out</button>
-        </form>
+        <div className="flex items-center gap-3">
+          <Link href="/settings" className="text-xs text-slate-500">
+            Settings
+          </Link>
+          <form action={logoutAction}>
+            <button className="text-xs text-slate-500">Sign out</button>
+          </form>
+        </div>
       </div>
 
       {/* Mobile bottom nav */}

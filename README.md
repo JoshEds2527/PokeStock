@@ -234,12 +234,17 @@ is still just manual eBay/Vinted search links. Working checklist:
 - [ ] `/market` page: button per product to fetch live prices, showing recent results instead of just a search link.
 - [ ] Cache/rate-limit lookups so we don't burn through eBay's API call limits.
 
-### Automated stock monitoring
+### Automated stock/back-end monitoring
 
-- [ ] Decide which retailers to support first (Smyths, Argos, Pokémon Center UK, etc. — Josh to confirm priority list).
-- [ ] Per retailer: check for an official stock API/RSS feed; where there isn't one (most UK retailers), decide case-by-case whether scraping is worth the ToS/fragility risk versus checking manually.
+Build this as a generic, per-retailer checker (not hardcoded to one site), so
+new retailers can be added later without a rewrite. **When work starts on
+this item: ask Josh which retailers to set up first** — don't assume a list.
+Then set each one up individually.
+
+- [ ] Ask Josh for the retailer list before building any retailer-specific logic.
+- [ ] Per retailer chosen: check for an official stock API/RSS feed; where there isn't one (most UK retailers), decide case-by-case whether scraping is worth the ToS/fragility risk versus checking manually.
 - [ ] Build the actual `StockWatch` UI — right now only the database table exists, there's no page to add/edit/remove a watch.
-- [ ] Build a checker job that visits each watched URL and updates `StockWatch.status`.
+- [ ] Build a generic checker job (one retailer "adapter" per site) that visits each watched URL/endpoint and updates `StockWatch.status`.
 - [ ] "Back in stock" email, reusing the existing email system.
 - [ ] Vercel Cron job to run the stock checker periodically (same pattern as the existing release-reminder cron).
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { pokemonArtworkUrl, pokemonName } from "@/lib/pokemon";
 
@@ -44,6 +45,14 @@ export function AuthLayout({
           </div>
           <p className="text-white/70 text-sm text-center mb-6">{subtitle}</p>
           {children}
+          <div className="flex gap-4 justify-center mt-6 text-xs text-white/50">
+            <Link href="/terms" className="hover:underline">
+              Terms
+            </Link>
+            <Link href="/privacy" className="hover:underline">
+              Privacy
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -62,6 +62,17 @@ export function RegisterForm({ pokemonId }: { pokemonId: number }) {
         &mdash; anyone signed in with it sees the same shared data.
       </p>
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      <p className="text-xs text-slate-400">
+        By creating an account you agree to the{" "}
+        <Link href="/terms" className="text-indigo-600 hover:underline">
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="text-indigo-600 hover:underline">
+          Privacy Policy
+        </Link>
+        .
+      </p>
       <button
         type="submit"
         disabled={pending}

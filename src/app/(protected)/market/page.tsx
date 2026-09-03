@@ -105,24 +105,20 @@ export default async function MarketPage() {
           ];
           return (
             <div key={p.id} className="px-4 py-3 space-y-2">
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <span className="text-sm font-medium text-slate-800">{p.name}</span>
-                <div className="flex items-center gap-2 text-sm flex-wrap">
-                  {links.map((link, i) => (
-                    <span key={link.label} className="flex items-center gap-2">
-                      {i > 0 && <span className="text-slate-300">/</span>}
-                      <a
-                        className="text-indigo-600 hover:underline"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={link.href}
-                        title={link.title}
-                      >
-                        {link.label}
-                      </a>
-                    </span>
-                  ))}
-                </div>
+              <span className="text-sm font-medium text-slate-800">{p.name}</span>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                {links.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={link.title}
+                    className="text-center text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200"
+                  >
+                    {link.label}
+                  </a>
+                ))}
               </div>
               <EbayPriceLookup productId={p.id} />
             </div>

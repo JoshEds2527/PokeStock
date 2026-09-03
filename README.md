@@ -177,6 +177,8 @@ rather than running unauthenticated.
 - `RESEND_API_KEY` (optional) — enables real password-reset and release-notification emails; see [Password reset & email](#password-reset--email) above.
 - `EMAIL_FROM` (optional) — the "from" address for those emails once you've verified a domain with Resend.
 - `CRON_SECRET` (needed for the reminder job) — see [Release notifications & the reminder cron](#release-notifications--the-reminder-cron) above. The value currently in local `.env` is a dev-only placeholder — Vercel needs its own real random value.
+- `EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET` (optional, phase 2) — from an eBay Developer account application. Not set yet — Josh's eBay developer account is pending approval. Until both are set, the Market page's "Fetch eBay prices" button shows a friendly "not connected yet" message instead of erroring; see [Phase 2](#phase-2-in-progress) below.
+- `EBAY_ENV` (optional, phase 2) — `sandbox` (default) or `production`. Use `production` once real API keys are in.
 
 ## Deploying so you can use it from your phones
 
@@ -218,21 +220,17 @@ Remaining step:
   reliably than base64) and re-paste carefully, ideally via a plain text
   editor as an intermediate step rather than pasting directly between apps.
 
-## Phase 2 (not built yet)
-
-The database already has `MarketListing` and `StockWatch` tables from phase 1
-(see `prisma/schema.prisma`), but nothing uses them yet — the `/market` page
-is still just manual eBay/Vinted search links. Working checklist:
+## Phase 2 (in progress)
 
 ### eBay sold-listing prices
 
-- [ ] Create a free eBay Developer account and an application (gives Client ID/Secret).
-- [ ] **Decision needed:** eBay's Browse API only covers *active* listings, not sold ones. Actual sold-price history needs the Marketplace Insights API, which requires separate eBay approval (not automatically granted to new developer accounts). Need to check whether that approval is realistic, or fall back to a different data source/approach.
-- [ ] Server-side OAuth (client-credentials flow) to fetch and cache an eBay access token.
-- [ ] Function to query eBay for a product name and parse out price results.
-- [ ] Store results in the existing `MarketListing` table.
-- [ ] `/market` page: button per product to fetch live prices, showing recent results instead of just a search link.
-- [ ] Cache/rate-limit lookups so we don't burn through eBay's API call limits.
+- [ ] Create a free eBay Developer account and an application (gives Client ID/Secret). **Status: pending eBay's approval** (Josh applied 2026-09-03).
+- [ ] **Decision needed:** eBay's Browse API only covers *active* listings, not sold ones. Actual sold-price history needs the Marketplace Insights API, which requires separate eBay approval (not automatically granted to new developer accounts). Researching whether that approval is realistic while waiting on the account.
+- [x] Server-side OAuth (client-credentials flow) to fetch and cache an eBay access token — `src/lib/ebay.ts`.
+- [x] Function to query eBay for a product name and parse out price results — `searchActiveListings()` in `src/lib/ebay.ts` (active listings only, per the decision above; `searchSoldListings()` is a deliberate stub until Marketplace Insights approval is confirmed).
+- [x] Store results in the existing `MarketListing` table — see `fetchEbayPricesAction` in `src/lib/actions/market.ts`.
+- [x] `/market` page: "Fetch eBay prices" button per product (`EbayPriceLookup.tsx`). Shows a friendly "not connected yet" message until `EBAY_CLIENT_ID`/`EBAY_CLIENT_SECRET` are set (can't be tested end-to-end until the developer account is approved).
+- [ ] Cache/rate-limit lookups so we don't burn through eBay's API call limits — not yet needed since it isn't live; revisit once real keys are in and we see actual usage.
 
 ### Automated stock/back-end monitoring
 

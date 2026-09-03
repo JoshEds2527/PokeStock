@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { AddStockWatchForm } from "./AddStockWatchForm";
 import { StockWatchTable, type StockWatchRow } from "./StockWatchTable";
+import { EbayPriceLookup } from "./EbayPriceLookup";
+import { isEbayConfigured } from "@/lib/ebay";
 
 export default async function MarketPage() {
   const session = await getSession();
@@ -38,8 +40,9 @@ export default async function MarketPage() {
 
       <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4 space-y-2">
         <p className="text-sm text-slate-600">
-          Live eBay UK sold-listing prices are planned for phase 2. For now, here are quick
-          manual lookup links for your products.
+          {isEbayConfigured()
+            ? "Live eBay active-listing prices are connected. Sold-listing history still needs separate eBay approval (see README) -- for now, use the manual \"eBay sold\" link for sold prices."
+            : "Live eBay pricing is connected in code but not switched on yet -- add EBAY_CLIENT_ID and EBAY_CLIENT_SECRET once the developer account is approved. Manual lookup links work in the meantime."}
         </p>
       </div>
 
@@ -52,26 +55,29 @@ export default async function MarketPage() {
         {products.map((p) => {
           const q = encodeURIComponent(p.name);
           return (
-            <div key={p.id} className="px-4 py-3 flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-slate-800">{p.name}</span>
-              <div className="flex gap-3 text-sm">
-                <a
-                  className="text-indigo-600 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`https://www.ebay.co.uk/sch/i.html?_nkw=${q}&LH_Sold=1&LH_Complete=1`}
-                >
-                  eBay sold
-                </a>
-                <a
-                  className="text-indigo-600 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`https://www.vinted.co.uk/catalog?search_text=${q}`}
-                >
-                  Vinted
-                </a>
+            <div key={p.id} className="px-4 py-3 space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-medium text-slate-800">{p.name}</span>
+                <div className="flex gap-3 text-sm">
+                  <a
+                    className="text-indigo-600 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://www.ebay.co.uk/sch/i.html?_nkw=${q}&LH_Sold=1&LH_Complete=1`}
+                  >
+                    eBay sold
+                  </a>
+                  <a
+                    className="text-indigo-600 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://www.vinted.co.uk/catalog?search_text=${q}`}
+                  >
+                    Vinted
+                  </a>
+                </div>
               </div>
+              <EbayPriceLookup productId={p.id} />
             </div>
           );
         })}

@@ -32,7 +32,7 @@ from every other account.
 
 Every list supports sorting and filtering, every entry can be edited in place, and every delete requires confirmation.
 
-Built with Next.js 16 (App Router, Server Actions), Prisma + SQLite (dev) / PostgreSQL (production), Tailwind CSS, Recharts.
+Built with Next.js 16 (App Router, Server Actions), Prisma + PostgreSQL (Neon), Tailwind CSS, Recharts.
 
 ## Accounts and sharing
 
@@ -72,11 +72,17 @@ something you'd want a compromised session to be able to grant itself).
 
 ```bash
 npm install
-npx prisma migrate dev   # creates/updates the local SQLite database
+npx prisma migrate dev   # applies any pending migrations to the database in .env
 npm run dev
 ```
 
 Open http://localhost:3000. The app is mobile-first — resize your browser or open dev tools' device toolbar to preview it as a phone.
+
+Local dev and production currently point at the **same** Neon Postgres
+database (see [Database](#database-neon-postgres) below) — there's only one
+environment right now, which is fine for a 2-person app. If that ever feels
+risky while testing new features, Neon supports branching a database for a
+free, isolated copy to develop against; not set up yet, but easy to add later.
 
 ### Creating an account
 
@@ -87,6 +93,34 @@ npm run create-account -- "Name" "email@example.com" "password"
 ```
 
 Re-running with the same email updates that account's name/password rather than creating a duplicate. Once you're logged in, you don't need this script for day-to-day changes — use `/settings` instead.
+
+## Database (Neon Postgres)
+
+The database is hosted on [Neon](https://neon.tech), project region **eu-west-2
+(London)** — chosen for the lowest latency from the UK. Only the "Postgres
+database" product was enabled for this project (not Neon's Object storage,
+Functions, AI gateway, or Neon Auth add-ons — this app doesn't use any of
+those).
+
+Neon gives you two connection strings for the same database, and this project
+uses both (see `prisma/schema.prisma`'s `datasource` block):
+
+- **`DATABASE_URL`** — the **pooled** connection (hostname contains `-pooler`).
+  Used by the running app, since serverless functions open lots of short-lived
+  connections and pooling keeps that from exhausting Postgres's connection limit.
+- **`DIRECT_URL`** — the **direct**, non-pooled connection (same hostname,
+  minus `-pooler`). Used only by Prisma Migrate, since schema migrations need
+  a direct connection.
+
+If you ever need to rotate credentials or grab these again: Neon dashboard →
+your project → **Connect** (or **Connection Details**) → copy the pooled
+string for `DATABASE_URL`, and toggle off "pooled connection" (or strip
+`-pooler` from the hostname yourself) for `DIRECT_URL`.
+
+The developer account (`PsyJands@gmail.com` — see
+[The developer account](#the-developer-account) above) already exists in this
+database, created via `npm run create-account`, so there's nothing to
+register once this is deployed — just log in.
 
 ## Password reset & email
 
@@ -137,43 +171,37 @@ rather than running unauthenticated.
 
 ## Environment variables (`.env`)
 
-- `DATABASE_URL` — SQLite file path locally (`file:./dev.db`); a PostgreSQL connection string in production.
-- `AUTH_SECRET` — random secret used to sign session cookies. A value has already been generated for you; keep it out of git (it already is, via `.gitignore`) and don't reuse it elsewhere.
+- `DATABASE_URL` — Neon's **pooled** Postgres connection string; see [Database (Neon Postgres)](#database-neon-postgres) above.
+- `DIRECT_URL` — Neon's **direct** (non-pooled) connection string, used only for running migrations; see [Database (Neon Postgres)](#database-neon-postgres) above.
+- `AUTH_SECRET` — random secret used to sign session cookies. A value has already been generated for you; keep it out of git (it already is, via `.gitignore`) and don't reuse it elsewhere. Vercel should get its **own**, separately generated value — see the deploy steps below.
 - `RESEND_API_KEY` (optional) — enables real password-reset and release-notification emails; see [Password reset & email](#password-reset--email) above.
 - `EMAIL_FROM` (optional) — the "from" address for those emails once you've verified a domain with Resend.
-- `CRON_SECRET` (needed for the reminder job) — see [Release notifications & the reminder cron](#release-notifications--the-reminder-cron) above.
+- `CRON_SECRET` (needed for the reminder job) — see [Release notifications & the reminder cron](#release-notifications--the-reminder-cron) above. The value currently in local `.env` is a dev-only placeholder — Vercel needs its own real random value.
 
 ## Deploying so you can use it from your phones
 
-This app needs a real, persistent database in production — SQLite (a local file) doesn't survive on Vercel's serverless hosting. The path below uses free tiers throughout.
+Progress so far:
 
-1. **Push this project to a GitHub repo** (private is fine).
-2. **Create a Postgres database** — [Neon](https://neon.tech) or [Supabase](https://supabase.com) both have free tiers that work well with Prisma. Copy the connection string they give you.
-3. **Switch Prisma to Postgres:**
-   - In `prisma/schema.prisma`, change:
-     ```prisma
-     datasource db {
-       provider = "sqlite"
-       url      = env("DATABASE_URL")
-     }
-     ```
-     to:
-     ```prisma
-     datasource db {
-       provider = "postgresql"
-       url      = env("DATABASE_URL")
-     }
-     ```
-   - Delete the `prisma/migrations` folder (it currently contains SQLite-flavoured SQL) and run `npx prisma migrate dev --name init` once locally with your **Postgres** connection string in `.env`, to generate fresh Postgres migrations. Commit the new `prisma/migrations` folder.
-4. **Import the project on [vercel.com](https://vercel.com)** (Add New → Project → your GitHub repo).
-5. **Set environment variables in Vercel** (Project Settings → Environment Variables):
-   - `DATABASE_URL` — your Postgres connection string.
-   - `AUTH_SECRET` — generate a new one for production, e.g. run `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` and paste the result.
-   - `RESEND_API_KEY` and `EMAIL_FROM` (optional) — for password-reset and release-notification emails to actually send; see [Password reset & email](#password-reset--email).
-   - `CRON_SECRET` — a long random string, needed for the release-reminder cron job to run at all; see [Release notifications & the reminder cron](#release-notifications--the-reminder-cron).
-6. **Deploy.** Vercel runs `npm install` (which runs `prisma generate` via the `postinstall` script) and `npm run build` automatically.
-7. **Register your account** at the deployed URL's `/register` page (or run `npm run create-account` locally with your production `DATABASE_URL` temporarily set in `.env`).
-8. Open the Vercel URL on your phones and add it to your home screen (Safari/Chrome → Share → Add to Home Screen) — it behaves like an app.
+- [x] **Code pushed to GitHub** — https://github.com/JoshEds2527/PokeStock
+- [x] **Postgres database created** — Neon, region eu-west-2 (London); see [Database (Neon Postgres)](#database-neon-postgres) above.
+- [x] **Prisma switched to Postgres** — schema, migrations, and the developer account all already live in that database.
+- [x] **Build script updated** — `npm run build` now runs `prisma migrate deploy` before `next build`, so every future deploy automatically applies any new migrations to the production database with no manual step.
+- [ ] **Import the project on Vercel**
+- [ ] **Set environment variables in Vercel**
+- [ ] **Deploy and verify**
+- [ ] **Add to home screen on both phones**
+
+Remaining steps:
+
+1. **Import the project on [vercel.com](https://vercel.com)** (Add New → Project → pick the `PokeStock` GitHub repo).
+2. **Set environment variables in Vercel** (Project Settings → Environment Variables) — same names as [above](#environment-variables-env):
+   - `DATABASE_URL` and `DIRECT_URL` — the same Neon values from local `.env`.
+   - `AUTH_SECRET` — a **new**, separately generated value (don't reuse the local dev one) — run `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` and paste the result.
+   - `CRON_SECRET` — a **new** long random string (same command as above works) — the local `.env` value is a dev-only placeholder, not safe to reuse.
+   - `RESEND_API_KEY` and `EMAIL_FROM` (optional) — only if you want password-reset/notification emails to actually send rather than log to the console.
+3. **Deploy.** Vercel runs `npm install` (which runs `prisma generate` via the `postinstall` script) and `npm run build` (which now runs migrations first) automatically.
+4. **Log in** at the deployed URL with the existing developer account — no need to register, it's already in the database.
+5. Open the Vercel URL on your phones and add it to your home screen (Safari/Chrome → Share → Add to Home Screen) — it behaves like an app.
 
 ## Phase 2 (not built yet)
 

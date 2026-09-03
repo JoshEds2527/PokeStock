@@ -170,6 +170,33 @@ daily at 08:00 UTC once this is deployed on Vercel. To secure it:
 Without `CRON_SECRET` set, the endpoint refuses every request (fails closed)
 rather than running unauthenticated.
 
+## Automated release research
+
+`POST /api/cron/add-releases` (same `CRON_SECRET` auth as above, via
+`Authorization: Bearer` or `?secret=`) accepts a JSON array of
+`{ productName, releaseDate, retailer?, url?, notes? }` and adds any that
+aren't already in the shared catalog (same case-insensitive product-name +
+exact-date dedup as the in-app "add release" form), auto-tracked for the
+developer account, with a summary notification ("Weekly release check:
+added N new releases") through the in-app bell if anything new was found.
+
+This endpoint is deliberately narrow -- it can only create releases and a
+notification, nothing else -- because it's meant to be called by an
+**external scheduled agent**, not by Vercel Cron itself: there's no reliable
+structured API for "upcoming Pokémon TCG release dates," so getting new ones
+means the same kind of multi-source web research + cross-checking a person
+(or an LLM doing research on request) would do, which isn't something a
+plain cron job can do on its own. A weekly Claude Code cloud routine handles
+this: it researches, cross-checks sources, and only submits releases it's
+confident about (flagging uncertain ones in `notes` rather than guessing).
+That routine is managed at https://claude.ai/code/routines, not in this
+repo -- if release research ever stops showing up, check there first.
+
+New entries do land directly in the shared catalog (this is meant to run
+unattended), but the notification means a wrong or duplicate-but-differently-worded
+entry is easy to spot and fix (edit/delete are developer-only, same as any
+other release) rather than silently accepted forever.
+
 ## Environment variables (`.env`)
 
 - `DATABASE_URL` — Neon's **pooled** Postgres connection string; see [Database (Neon Postgres)](#database-neon-postgres) above.

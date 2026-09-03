@@ -1,24 +1,18 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { LoginForm } from "./LoginForm";
-import { Logo } from "@/components/Logo";
+import { AuthLayout } from "@/components/AuthLayout";
+import { randomPokemonId } from "@/lib/pokemon";
 
 export default async function LoginPage() {
   const session = await getSession();
   if (session) redirect("/");
 
+  const pokemonId = randomPokemonId();
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2">
-            <Logo size={32} />
-            <h1 className="text-2xl font-bold text-slate-900">PokéStock</h1>
-          </div>
-          <p className="text-slate-500 mt-1 text-sm">Sign in to your stock tracker</p>
-        </div>
-        <LoginForm />
-      </div>
-    </div>
+    <AuthLayout pokemonId={pokemonId} subtitle="Sign in to your stock tracker">
+      <LoginForm pokemonId={pokemonId} />
+    </AuthLayout>
   );
 }

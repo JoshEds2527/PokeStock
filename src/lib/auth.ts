@@ -14,6 +14,9 @@ export type SessionPayload = {
   accountId: string;
   email: string;
   name: string;
+  // Randomly chosen once at login/register, kept for the life of the
+  // session, and shown as the small logo badge throughout the app.
+  pokemonId?: number;
 };
 
 export async function createSessionToken(payload: SessionPayload) {
@@ -52,6 +55,7 @@ export async function getSession(): Promise<SessionPayload | null> {
       accountId: payload.accountId as string,
       email: payload.email as string,
       name: payload.name as string,
+      pokemonId: typeof payload.pokemonId === "number" ? payload.pokemonId : undefined,
     };
   } catch {
     return null;

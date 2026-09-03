@@ -4,11 +4,15 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { loginAction } from "@/lib/actions/auth";
 
-export function LoginForm() {
+export function LoginForm({ pokemonId }: { pokemonId: number }) {
   const [state, action, pending] = useActionState(loginAction, undefined);
 
   return (
-    <form action={action} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+    <form
+      action={action}
+      className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4"
+    >
+      <input type="hidden" name="pokemonId" value={pokemonId} />
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
         <input

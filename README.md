@@ -9,6 +9,12 @@ from every other account.
 - **Accounts** — public registration (`/register`) plus login. Each account is
   one email/password pair that owns an isolated set of data — see
   [Accounts and sharing](#accounts-and-sharing) below for how two people share one.
+  The login/register screen randomly features one of the original 151 Pokémon
+  (split-screen artwork panel, same colour wash behind both halves); whichever
+  one shows at login becomes that session's small logo badge in the app header.
+  **Note:** this uses real Nintendo/Game Freak/Creatures character artwork
+  (hotlinked from PokeAPI's public sprite mirror) — fine for personal use, but
+  replace it with licensed or original art before ever selling access to this app.
 - **Dashboard** — total spent, net revenue, profit, units in stock, and a spend-vs-revenue-vs-profit chart over time.
 - **Inventory** — add products, log purchases ("stock in"), see current stock, average cost, and total spent per product. Full purchase history with edit/delete.
 - **Sales** — log sales with platform (eBay/Vinted/Facebook/Depop/in person), fees, and postage. Sortable, filterable, editable.

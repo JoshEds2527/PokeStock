@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { setSessionCookie, clearSessionCookie } from "@/lib/auth";
+import { randomPokemonId, isValidPokemonId } from "@/lib/pokemon";
+
+function resolvePokemonId(formData: FormData): number {
+  const raw = Number(formData.get("pokemonId"));
+  return isValidPokemonId(raw) ? raw : randomPokemonId();
+}
 
 export async function loginAction(
   _prevState: { error?: string } | undefined,
@@ -32,6 +38,7 @@ export async function loginAction(
     accountId: account.id,
     email: account.email,
     name: account.name,
+    pokemonId: resolvePokemonId(formData),
   });
 
   redirect("/");
@@ -72,6 +79,7 @@ export async function registerAction(
     accountId: account.id,
     email: account.email,
     name: account.name,
+    pokemonId: resolvePokemonId(formData),
   });
 
   redirect("/");

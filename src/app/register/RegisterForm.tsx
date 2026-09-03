@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { registerAction } from "@/lib/actions/auth";
 
-export function RegisterForm() {
+export function RegisterForm({ pokemonId }: { pokemonId: number }) {
   const [state, action, pending] = useActionState(registerAction, undefined);
 
   return (
@@ -12,6 +12,7 @@ export function RegisterForm() {
       action={action}
       className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4"
     >
+      <input type="hidden" name="pokemonId" value={pokemonId} />
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">Your name</label>
         <input

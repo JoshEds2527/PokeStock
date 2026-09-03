@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/actions/auth";
-import { Logo } from "@/components/Logo";
+import { SessionBadge } from "@/components/SessionBadge";
 
 const links = [
   { href: "/", label: "Dashboard", icon: "📊" },
@@ -13,7 +13,13 @@ const links = [
   { href: "/market", label: "Market", icon: "🔎" },
 ];
 
-export function NavBar({ userName }: { userName: string }) {
+export function NavBar({
+  userName,
+  pokemonId,
+}: {
+  userName: string;
+  pokemonId?: number;
+}) {
   const pathname = usePathname();
 
   return (
@@ -21,7 +27,7 @@ export function NavBar({ userName }: { userName: string }) {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-56 border-r border-slate-200 bg-white px-4 py-6">
         <div className="flex items-center gap-2 mb-1">
-          <Logo />
+          <SessionBadge pokemonId={pokemonId} />
           <h1 className="text-lg font-bold text-slate-900">PokéStock</h1>
         </div>
         <p className="text-xs text-slate-500 mb-6">Signed in as {userName}</p>
@@ -54,7 +60,7 @@ export function NavBar({ userName }: { userName: string }) {
       {/* Mobile top bar */}
       <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
         <div className="flex items-center gap-2">
-          <Logo size={24} />
+          <SessionBadge pokemonId={pokemonId} size={24} />
           <h1 className="text-base font-bold text-slate-900">PokéStock</h1>
         </div>
         <form action={logoutAction}>

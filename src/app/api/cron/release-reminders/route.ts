@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { currentOrigin } from "@/lib/origin";
+import { createNotification } from "@/lib/notifications";
 
 // Meant to be hit once a day by a scheduler (Vercel Cron once deployed --
 // see vercel.json and the README). Emails everyone tracking a release that's
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
       releaseDate: { gte: now, lte: soon },
     },
     include: {
-      trackedBy: { include: { account: { select: { email: true } } } },
+      trackedBy: { include: { account: { select: { id: true, email: true } } } },
     },
   });
 
@@ -48,6 +49,11 @@ export async function GET(request: NextRequest) {
             text: `A release you're tracking on PokéStock is coming up soon.\n\n${release.productName}${release.retailer ? ` (${release.retailer})` : ""} releases on ${release.releaseDate.toDateString()}.\n\nView it: ${releasesUrl}`,
             html: `<p>A release you're tracking on PokéStock is coming up soon.</p><p><strong>${release.productName}</strong>${release.retailer ? ` (${release.retailer})` : ""} releases on <strong>${release.releaseDate.toDateString()}</strong>.</p><p><a href="${releasesUrl}">View it in PokéStock</a></p>`,
           })
+        )
+      );
+      await Promise.all(
+        release.trackedBy.map((t) =>
+          createNotification(t.account.id, `${release.productName} is releasing soon`, "/releases")
         )
       );
       remindersSent += release.trackedBy.length;

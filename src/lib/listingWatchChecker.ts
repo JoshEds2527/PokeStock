@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { createNotification } from "@/lib/notifications";
 import { findMatchingListings, isValidRetailer, type RetailerId } from "@/lib/retailers";
 
 export type ListingWatchCheckResult = {
@@ -55,6 +56,11 @@ export async function runListingWatchCheck(watchId: string): Promise<ListingWatc
             .map((url) => `<li><a href="${url}">${url}</a></li>`)
             .join("")}</ul>`,
         });
+        await createNotification(
+          account.id,
+          `New listing for "${watch.keyword}" on ${watch.retailer}`,
+          "/market"
+        );
       }
     }
   }

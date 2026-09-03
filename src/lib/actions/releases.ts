@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 import { currentOrigin } from "@/lib/origin";
+import { createNotification } from "@/lib/notifications";
 import { ReleaseStatus } from "@prisma/client";
 import type { ActionResult } from "@/lib/actions/inventory";
 
@@ -37,7 +38,7 @@ async function trackForAccount(accountId: string, releaseId: string) {
 async function notifyStatusChange(releaseId: string, productName: string, status: string) {
   const trackers = await prisma.trackedRelease.findMany({
     where: { releaseId },
-    include: { account: { select: { email: true } } },
+    include: { account: { select: { id: true, email: true } } },
   });
   if (trackers.length === 0) return;
 
@@ -53,6 +54,11 @@ async function notifyStatusChange(releaseId: string, productName: string, status
         text: `A release you're tracking on PokéStock has changed status.\n\n${productName} is now ${friendlyStatus}.\n\nView it: ${releasesUrl}`,
         html: `<p>A release you're tracking on PokéStock has changed status.</p><p><strong>${productName}</strong> is now <strong>${friendlyStatus}</strong>.</p><p><a href="${releasesUrl}">View it in PokéStock</a></p>`,
       })
+    )
+  );
+  await Promise.all(
+    trackers.map((t) =>
+      createNotification(t.account.id, `${productName} is now ${friendlyStatus}`, "/releases")
     )
   );
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/actions/auth";
 import { SessionBadge } from "@/components/SessionBadge";
+import { NotificationBell, type NotificationItem } from "@/components/NotificationBell";
 
 const baseLinks = [
   { href: "/", label: "Dashboard", icon: "📊" },
@@ -20,10 +21,12 @@ export function NavBar({
   userName,
   pokemonId,
   isDeveloper,
+  notifications,
 }: {
   userName: string;
   pokemonId?: number;
   isDeveloper?: boolean;
+  notifications: NotificationItem[];
 }) {
   const pathname = usePathname();
   const links = isDeveloper ? [...baseLinks, adminLink] : baseLinks;
@@ -50,9 +53,12 @@ export function NavBar({
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-56 border-r border-white/30 bg-white/70 backdrop-blur-xl px-4 py-6">
-        <div className="flex items-center gap-2 mb-1">
-          <SessionBadge pokemonId={pokemonId} />
-          <h1 className="text-lg font-bold text-slate-900">PokéStock</h1>
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="flex items-center gap-2">
+            <SessionBadge pokemonId={pokemonId} />
+            <h1 className="text-lg font-bold text-slate-900">PokéStock</h1>
+          </div>
+          <NotificationBell notifications={notifications} />
         </div>
         <Link
           href="/settings"
@@ -91,12 +97,7 @@ export function NavBar({
           z-index is always judged against the page content below it, never
           accidentally lost to something else on the page. */}
       <div className="md:hidden relative isolate z-40 grid grid-cols-[2.25rem_1fr_2.25rem] items-center px-4 py-3 border-b border-white/30 bg-white/70 backdrop-blur-xl">
-        <div />
-        <div className="flex items-center justify-center gap-2">
-          <SessionBadge pokemonId={pokemonId} size={24} />
-          <h1 className="text-base font-bold text-slate-900">PokéStock</h1>
-        </div>
-        <div ref={menuRef} className="relative justify-self-end">
+        <div ref={menuRef} className="relative justify-self-start">
           <button
             onClick={() => setMenuOpen((open) => !open)}
             aria-label="Open menu"
@@ -114,7 +115,7 @@ export function NavBar({
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-white/40 bg-white/95 backdrop-blur-xl shadow-lg overflow-hidden z-30">
+            <div className="absolute left-0 top-full mt-2 w-52 rounded-xl border border-white/40 bg-white/95 backdrop-blur-xl shadow-lg overflow-hidden z-30">
               <nav className="flex flex-col py-1">
                 {links.map((link) => {
                   const active = pathname === link.href;
@@ -149,6 +150,13 @@ export function NavBar({
               </div>
             </div>
           )}
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          <SessionBadge pokemonId={pokemonId} size={24} />
+          <h1 className="text-base font-bold text-slate-900">PokéStock</h1>
+        </div>
+        <div className="justify-self-end">
+          <NotificationBell notifications={notifications} />
         </div>
       </div>
     </>

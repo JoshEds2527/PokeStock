@@ -32,6 +32,23 @@ model Account {
   stockWatches        StockWatch[]
   listingWatches      ListingWatch[]
   passwordResetTokens PasswordResetToken[]
+  notifications       Notification[]
+}
+
+// In-app notification bell feed -- a lighter-weight companion to the
+// existing emails (release status changes, "releasing soon" reminders, new
+// listing alerts), not a replacement for them. Read on page load, so it's
+// not real-time; it updates on navigation/refresh like the rest of the app.
+model Notification {
+  id        String    @id @default(cuid())
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+  message   String
+  url       String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([accountId, readAt])
 }
 
 // A password-reset link: the raw token is emailed to the user, only its

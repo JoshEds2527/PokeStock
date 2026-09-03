@@ -240,11 +240,18 @@ this item: ask Josh which retailers to set up first** — don't assume a list.
 Then set each one up individually.
 
 - [x] Build the `StockWatch` UI — add/edit/delete a watch (retailer, product page URL, optional linked product, check interval, active toggle) on the Market page. No checking logic yet — it's just a managed list for now.
-- [x] Ask Josh for the retailer list. **Chosen retailers:** Smyths, Argos, Very UK, John Lewis, Pokémon Center, Savvi, Hamleys, Chaos Cards.
-- [ ] Per retailer above: check for an official stock API/RSS feed; where there isn't one, decide case-by-case whether scraping is worth the ToS/fragility risk versus checking manually. Research in progress.
-- [ ] Build a generic checker job (one retailer "adapter" per site) that visits each watched URL/endpoint and updates `StockWatch.status`.
-- [ ] "Back in stock" email, reusing the existing email system.
-- [ ] Vercel Cron job to run the stock checker periodically (same pattern as the existing release-reminder cron).
+- [x] Ask Josh for the retailer list. **Chosen retailers:** Smyths, Argos, Very UK, John Lewis, Pokémon Center, Zavvi (corrected from "Savvi" -- that's not a real retailer), Hamleys, Chaos Cards.
+- [x] Per-retailer feasibility research (2026-09-03). Verdict:
+  - **Argos, Very UK**: block *all* automated access at the network edge (even a plain `robots.txt` request 403s) -- not automatable without residential-proxy IP spoofing, which we won't build.
+  - **Smyths, Pokémon Center**: enterprise anti-bot (Imperva / Incapsula-style) blocks even a plain sitemap fetch, and Pokémon Center's ToS explicitly bans scraping/bots. Not automatable without defeating that protection, which we won't build.
+  - **John Lewis, Hamleys, Chaos Cards, Zavvi**: ✅ each has a real, unblocked, publicly-crawlable product sitemap -- see "New listing alerts" below, which is built and live for these four.
+  - Direct stock-status checking of a *known* product URL (the original `StockWatch` plan) is really only safe for these same four, for the same reasons.
+- [x] **"New listing alerts"** (`ListingWatch` + `SeenListing` models, `src/lib/retailers.ts`, Market page section) -- watches a retailer's product sitemap for URLs matching a keyword. This is the "did a page just get loaded, even before it's purchasable" signal Josh specifically wanted, and it works without bypassing any bot protection since sitemaps are meant to be crawled. First check per watch just records a baseline (so you don't get emailed about every existing product); later checks email on anything genuinely new. Manual "Check now" button only for now -- see below for automating it.
+- [ ] Vercel Cron job to run listing-watch and stock-watch checks periodically (same pattern as the existing release-reminder cron), instead of relying on the manual "Check now" button.
+- [ ] "Back in stock" email for `StockWatch` (status-based checking of a known URL) -- not built yet, lower priority than listing alerts since it needs per-retailer stock-page parsing logic too.
+- [ ] For Argos/Very/Smyths/Pokémon Center: check whether each has an official "email me when back in stock" signup and wire that up as the legitimate alternative, since we won't scrape them directly.
+
+**Known local-only limitation:** fetches made from inside the Next.js dev server process on this sandbox fail with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` (same root cause as the app-icon/Satori emoji issue noted elsewhere in this file) -- plain `curl`/standalone Node scripts against the same URLs work fine, confirming the sitemap-fetching code itself is correct. This only affects local dev *here*; Vercel's production runtime has a normal certificate store. **The "Check now" button needs its first real test on the live deployed site, not local dev.**
 
 ### Wrap-up
 

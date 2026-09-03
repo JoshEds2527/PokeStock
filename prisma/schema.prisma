@@ -30,6 +30,7 @@ model Account {
   trackedReleases     TrackedRelease[]
   marketListings      MarketListing[]
   stockWatches        StockWatch[]
+  listingWatches      ListingWatch[]
   passwordResetTokens PasswordResetToken[]
 }
 
@@ -223,4 +224,38 @@ model StockWatch {
   createdAt           DateTime     @default(now())
 
   @@index([accountId])
+}
+
+// Watches a retailer's product sitemap for new URLs matching a keyword, so a
+// product page appearing (e.g. before it's even purchasable) is caught early
+// -- without needing to bypass any bot protection, since sitemaps are meant
+// to be crawled. `retailer` is a plain string (validated in code against
+// src/lib/retailers.ts) rather than an enum, so new retailers can be added
+// without a migration.
+model ListingWatch {
+  id            String        @id @default(cuid())
+  account       Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId     String
+  keyword       String
+  retailer      String
+  active        Boolean       @default(true)
+  lastCheckedAt DateTime?
+  createdAt     DateTime      @default(now())
+
+  seenListings  SeenListing[]
+
+  @@index([accountId])
+}
+
+// One row per product URL a ListingWatch has already seen -- anything found
+// in a later check that isn't here yet is genuinely new.
+model SeenListing {
+  id          String       @id @default(cuid())
+  watch       ListingWatch @relation(fields: [watchId], references: [id], onDelete: Cascade)
+  watchId     String
+  url         String
+  firstSeenAt DateTime     @default(now())
+
+  @@unique([watchId, url])
+  @@index([watchId])
 }

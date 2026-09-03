@@ -5,12 +5,15 @@ import { AddStockWatchForm } from "./AddStockWatchForm";
 import { StockWatchTable, type StockWatchRow } from "./StockWatchTable";
 import { EbayPriceLookup } from "./EbayPriceLookup";
 import { isEbayConfigured } from "@/lib/ebay";
+import { listRetailers } from "@/lib/retailers";
+import { AddListingWatchForm } from "./AddListingWatchForm";
+import { ListingWatchTable, type ListingWatchRow } from "./ListingWatchTable";
 
 export default async function MarketPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const [products, stockWatches] = await Promise.all([
+  const [products, stockWatches, listingWatches] = await Promise.all([
     prisma.product.findMany({
       where: { accountId: session.accountId },
       orderBy: { name: "asc" },
@@ -18,6 +21,10 @@ export default async function MarketPage() {
     prisma.stockWatch.findMany({
       where: { accountId: session.accountId },
       include: { product: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.listingWatch.findMany({
+      where: { accountId: session.accountId },
       orderBy: { createdAt: "desc" },
     }),
   ]);
@@ -32,6 +39,16 @@ export default async function MarketPage() {
     lastCheckedAt: w.lastCheckedAt ? w.lastCheckedAt.toISOString() : null,
     checkIntervalMinutes: w.checkIntervalMinutes,
     active: w.active,
+  }));
+
+  const retailers = listRetailers();
+  const retailerLabels = Object.fromEntries(retailers.map((r) => [r.id, r.label]));
+  const listingWatchRows: ListingWatchRow[] = listingWatches.map((w) => ({
+    id: w.id,
+    keyword: w.keyword,
+    retailer: w.retailer,
+    retailerLabel: retailerLabels[w.retailer] ?? w.retailer,
+    lastCheckedAt: w.lastCheckedAt ? w.lastCheckedAt.toISOString() : null,
   }));
 
   return (
@@ -97,6 +114,21 @@ export default async function MarketPage() {
           rows={stockWatchRows}
           products={products.map((p) => ({ id: p.id, name: p.name }))}
         />
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-lg font-bold text-white drop-shadow">New listing alerts</h2>
+          <p className="text-sm text-white/70">
+            Watches a retailer's product sitemap for pages matching a keyword -- catches a
+            product going live before it's even purchasable, without needing to get past any
+            bot protection. Only works on retailers whose sitemap is publicly accessible:{" "}
+            {retailers.map((r) => r.label).join(", ")}. Argos, Very, Smyths, and Pokémon Center
+            block this the same way they block everything else, so they aren't offered here.
+          </p>
+        </div>
+        <AddListingWatchForm retailers={retailers} />
+        <ListingWatchTable rows={listingWatchRows} />
       </div>
     </div>
   );

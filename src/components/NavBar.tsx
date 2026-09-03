@@ -68,7 +68,7 @@ export function NavBar({
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-white/30 bg-white/70 backdrop-blur-xl sticky top-0 z-10">
+      <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-white/30 bg-white/70 backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <SessionBadge pokemonId={pokemonId} size={24} />
           <h1 className="text-base font-bold text-slate-900">PokéStock</h1>
@@ -82,25 +82,31 @@ export function NavBar({
           </form>
         </div>
       </div>
-
-      {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/70 backdrop-blur-xl border-t border-white/30 flex z-20">
-        {links.map((link) => {
-          const active = pathname === link.href;
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${
-                active ? "text-indigo-700" : "text-slate-500"
-              }`}
-            >
-              <span className="text-lg leading-none">{link.icon}</span>
-              {link.label}
-            </Link>
-          );
-        })}
-      </nav>
     </>
+  );
+}
+
+export function MobileBottomNav({ isDeveloper }: { isDeveloper?: boolean }) {
+  const pathname = usePathname();
+  const links = isDeveloper ? [...baseLinks, adminLink] : baseLinks;
+
+  return (
+    <nav className="md:hidden bg-white/70 backdrop-blur-xl border-t border-white/30 flex">
+      {links.map((link) => {
+        const active = pathname === link.href;
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${
+              active ? "text-indigo-700" : "text-slate-500"
+            }`}
+          >
+            <span className="text-lg leading-none">{link.icon}</span>
+            {link.label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }

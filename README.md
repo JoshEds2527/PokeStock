@@ -18,8 +18,8 @@ from every other account.
   (hotlinked from PokeAPI's public sprite mirror) — fine for personal use, but
   replace it with licensed or original art before ever selling access to this app.
 - **Dashboard** — total spent, net revenue, profit, units in stock, and a spend-vs-revenue-vs-profit chart over time.
-- **Inventory** — add products, log purchases ("stock in"), see current stock, average cost, and total spent per product. Full purchase history with edit/delete.
-- **Sales** — log sales with platform (eBay/Vinted/Facebook/Depop/in person), fees, and postage. Sortable, filterable, editable.
+- **Inventory** — add products, log purchases ("stock in"), see current stock, average cost, and total spent per product. Full purchase history with edit/delete, and a CSV export of the full history.
+- **Sales** — log sales with platform (eBay/Vinted/Facebook/Depop/in person), fees, and postage. Sortable, filterable, editable, and exportable to CSV.
 - **Releases** — a shared catalog of upcoming product releases (visible to every account, deduplicated by product name + date), with a personal "tracked releases" list layered on top so each account only follows what it cares about. Only the **developer account** can add, edit, or delete entries in the shared catalog; every other account can only track/untrack.
 - **Admin** (`/admin`, developer account only) — lists every registered account (joined date, last login, product/sale counts) with a delete action, for removing inactive or unwanted accounts.
 - **Market** (placeholder) — quick manual links to eBay sold listings and Vinted search per product. Live automated market data and stock-alert monitoring are phase 2 (see below).

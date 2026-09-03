@@ -180,28 +180,43 @@ rather than running unauthenticated.
 
 ## Deploying so you can use it from your phones
 
+**Live URL:** https://poke-stock-git-master-app-track.vercel.app/ — this is
+Vercel's "updates automatically" branch URL for `master`; every future push
+to `master` redeploys and this same link stays current. Deployed via Vercel
+project name `PokeStock` (GitHub account `app-track`).
+
 Progress so far:
 
 - [x] **Code pushed to GitHub** — https://github.com/JoshEds2527/PokeStock
 - [x] **Postgres database created** — Neon, region eu-west-2 (London); see [Database (Neon Postgres)](#database-neon-postgres) above.
 - [x] **Prisma switched to Postgres** — schema, migrations, and the developer account all already live in that database.
 - [x] **Build script updated** — `npm run build` now runs `prisma migrate deploy` before `next build`, so every future deploy automatically applies any new migrations to the production database with no manual step.
-- [ ] **Import the project on Vercel**
-- [ ] **Set environment variables in Vercel**
-- [ ] **Deploy and verify**
+- [x] **Imported the project on Vercel**
+- [x] **Set environment variables in Vercel** — `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`, `CRON_SECRET` (production-only values, generated fresh — not the local `.env` ones).
+- [x] **Deployed and verified** — logged in with the developer account, dashboard and Admin page both confirmed working against the live Neon database.
 - [ ] **Add to home screen on both phones**
 
-Remaining steps:
+Remaining step:
 
-1. **Import the project on [vercel.com](https://vercel.com)** (Add New → Project → pick the `PokeStock` GitHub repo).
-2. **Set environment variables in Vercel** (Project Settings → Environment Variables) — same names as [above](#environment-variables-env):
-   - `DATABASE_URL` and `DIRECT_URL` — the same Neon values from local `.env`.
-   - `AUTH_SECRET` — a **new**, separately generated value (don't reuse the local dev one) — run `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` and paste the result.
-   - `CRON_SECRET` — a **new** long random string (same command as above works) — the local `.env` value is a dev-only placeholder, not safe to reuse.
-   - `RESEND_API_KEY` and `EMAIL_FROM` (optional) — only if you want password-reset/notification emails to actually send rather than log to the console.
-3. **Deploy.** Vercel runs `npm install` (which runs `prisma generate` via the `postinstall` script) and `npm run build` (which now runs migrations first) automatically.
-4. **Log in** at the deployed URL with the existing developer account — no need to register, it's already in the database.
-5. Open the Vercel URL on your phones and add it to your home screen (Safari/Chrome → Share → Add to Home Screen) — it behaves like an app.
+1. Open the live URL above on both phones and add it to the home screen (Safari/Chrome → Share/menu → Add to Home Screen) — it behaves like an app.
+
+### Notes for future deploys / troubleshooting
+
+- **Deployment Protection**: Vercel enables "Vercel Authentication" on new
+  projects by default, which blocks anyone not logged into Vercel from
+  loading the site (redirects to a Vercel login page instead of the app).
+  Already **disabled** for this project under Settings → Deployment
+  Protection — if a fresh clone/project ever shows a Vercel login page
+  instead of PokéStock, check that setting first.
+- **Pasting secrets into Vercel's env var fields**: a plain paste corrupted
+  a generated secret once (an em-dash appeared in place of a character,
+  which Prisma/Node reject as invalid). If a build ever fails with a
+  "non-ASCII character" or "scheme is not recognized in database URL"
+  error, the fix is to regenerate the value with
+  `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+  (hex output has no slashes/plus signs, so it survives copy-paste more
+  reliably than base64) and re-paste carefully, ideally via a plain text
+  editor as an intermediate step rather than pasting directly between apps.
 
 ## Phase 2 (not built yet)
 

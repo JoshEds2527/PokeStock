@@ -7,6 +7,21 @@ import { prisma } from "@/lib/db";
 import { setSessionCookie, clearSessionCookie } from "@/lib/auth";
 import { randomPokemonId, isValidPokemonId } from "@/lib/pokemon";
 import { isRateLimited, recordAttempt, clearAttempts, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
+import { sendEmail } from "@/lib/email";
+import { currentOrigin } from "@/lib/origin";
+
+// Sent from the app's own address (EMAIL_FROM, or Resend's shared sender as a
+// fallback) -- never the developer's personal inbox, same as every other
+// outgoing email in the app.
+async function sendWelcomeEmail(name: string, email: string) {
+  const origin = await currentOrigin();
+  await sendEmail({
+    to: email,
+    subject: "Welcome to PokéStock! 🎉",
+    text: `Hi ${name},\n\nWelcome aboard -- we're so glad you're here! Your PokéStock account is all set up and ready for you to start tracking your inventory, sales, and every exciting upcoming release.\n\nJump in whenever you're ready: ${origin}\n\nWishing you great pulls and even better sales.\n\nWarmly,\nThe PokéStock team`,
+    html: `<p>Hi ${name},</p><p>Welcome aboard -- we're so glad you're here! Your PokéStock account is all set up and ready for you to start tracking your inventory, sales, and every exciting upcoming release.</p><p><a href="${origin}">Jump in whenever you're ready</a></p><p>Wishing you great pulls and even better sales.</p><p>Warmly,<br>The PokéStock team</p>`,
+  });
+}
 
 function resolvePokemonId(formData: FormData): number {
   const raw = Number(formData.get("pokemonId"));
@@ -113,6 +128,8 @@ export async function registerAction(
     pokemonId: resolvePokemonId(formData),
     isDeveloper: account.isDeveloper,
   });
+
+  await sendWelcomeEmail(account.name, account.email);
 
   redirect("/");
 }

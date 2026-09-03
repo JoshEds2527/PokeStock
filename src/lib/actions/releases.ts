@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { sendEmail } from "@/lib/email";
+import { currentOrigin } from "@/lib/origin";
 import { ReleaseStatus } from "@prisma/client";
 import type { ActionResult } from "@/lib/actions/inventory";
 
@@ -27,6 +29,32 @@ async function trackForAccount(accountId: string, releaseId: string) {
     create: { accountId, releaseId },
     update: {},
   });
+}
+
+// Emails everyone tracking a release when its status changes (e.g. UPCOMING
+// -> DELAYED). Best-effort: failures are logged by sendEmail itself and
+// don't block the status update that triggered this.
+async function notifyStatusChange(releaseId: string, productName: string, status: string) {
+  const trackers = await prisma.trackedRelease.findMany({
+    where: { releaseId },
+    include: { account: { select: { email: true } } },
+  });
+  if (trackers.length === 0) return;
+
+  const origin = await currentOrigin();
+  const releasesUrl = `${origin}/releases`;
+  const friendlyStatus = status.charAt(0) + status.slice(1).toLowerCase();
+
+  await Promise.all(
+    trackers.map((t) =>
+      sendEmail({
+        to: t.account.email,
+        subject: `${productName}: now ${friendlyStatus}`,
+        text: `A release you're tracking on PokéStock has changed status.\n\n${productName} is now ${friendlyStatus}.\n\nView it: ${releasesUrl}`,
+        html: `<p>A release you're tracking on PokéStock has changed status.</p><p><strong>${productName}</strong> is now <strong>${friendlyStatus}</strong>.</p><p><a href="${releasesUrl}">View it in PokéStock</a></p>`,
+      })
+    )
+  );
 }
 
 export async function addReleaseAction(
@@ -113,7 +141,13 @@ export async function updateReleaseAction(
   if (!productName) return { error: "Product name is required." };
   if (!releaseDateRaw) return { error: "Release date is required." };
 
-  const result = await prisma.releaseEvent.updateMany({
+  const before = await prisma.releaseEvent.findUnique({
+    where: { id },
+    select: { status: true },
+  });
+  if (!before) return { error: "Release not found." };
+
+  await prisma.releaseEvent.update({
     where: { id },
     data: {
       productName,
@@ -124,7 +158,10 @@ export async function updateReleaseAction(
       notes: notes || null,
     },
   });
-  if (result.count === 0) return { error: "Release not found." };
+
+  if (before.status !== status) {
+    await notifyStatusChange(id, productName, status);
+  }
 
   revalidatePath("/releases");
   return { success: true };
@@ -136,7 +173,19 @@ export async function updateReleaseStatusAction(formData: FormData) {
   const id = String(formData.get("id") || "");
   const status = String(formData.get("status") || "") as ReleaseStatus;
   if (!id || !status) return;
+
+  const before = await prisma.releaseEvent.findUnique({
+    where: { id },
+    select: { status: true, productName: true },
+  });
+  if (!before) return;
+
   await prisma.releaseEvent.updateMany({ where: { id }, data: { status } });
+
+  if (before.status !== status) {
+    await notifyStatusChange(id, before.productName, status);
+  }
+
   revalidatePath("/releases");
 }
 

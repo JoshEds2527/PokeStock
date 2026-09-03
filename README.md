@@ -22,8 +22,10 @@ from every other account.
 - **Admin** (`/admin`, developer account only) — lists every registered account (joined date, last login, product/sale counts) with a delete action, for removing inactive or unwanted accounts.
 - **Market** (placeholder) — quick manual links to eBay sold listings and Vinted search per product. Live automated market data and stock-alert monitoring are phase 2 (see below).
 - **Password reset** (`/forgot-password`, `/reset-password`) — email a single-use, 1-hour link. See [Password reset & email](#password-reset--email) below for how it sends (or doesn't) email locally.
+- **Release notifications** — anyone tracking a release gets emailed when its status changes (e.g. UPCOMING → DELAYED), and a daily job emails trackers when a release is landing within 48 hours. See [Release notifications & the reminder cron](#release-notifications--the-reminder-cron) below.
 - **Rate limiting** — login, registration, and password-reset requests are all limited (5 per 15 minutes, tracked in the database so it holds up across serverless instances) to blunt brute-forcing and spam.
 - **PWA basics** — a real app icon and manifest, so "Add to Home Screen" gets a proper name and icon instead of a generic bookmark.
+- **Terms of Service and Privacy Policy** (`/terms`, `/privacy`) — plain-English drafts, linked from registration and every auth screen.
 
 Every list supports sorting and filtering, every entry can be edited in place, and every delete requires confirmation.
 
@@ -104,12 +106,39 @@ Every reset email/log line shows a **masked** version of the address
 the reset-password page itself, so a leaked log line or shared screenshot
 doesn't expose the full address.
 
+## Release notifications & the reminder cron
+
+Two kinds of email go out to accounts tracking a release, both through the
+same Resend setup as password reset (console-logged locally without
+`RESEND_API_KEY`):
+
+- **Status changes** — the moment the developer account changes a release's
+  status, everyone tracking it is emailed immediately (from the same server
+  action that made the change).
+- **"Releasing soon"** — a daily check (`GET /api/cron/release-reminders`)
+  emails trackers of any `UPCOMING` release landing within 48 hours, once per
+  release (tracked via `remindedAt` on `ReleaseEvent`, so it won't repeat).
+
+That endpoint isn't triggered by anything on its own — it needs a scheduler
+to call it. `vercel.json` already declares a Vercel Cron job that hits it
+daily at 08:00 UTC once this is deployed on Vercel. To secure it:
+
+1. Set a `CRON_SECRET` environment variable (any long random string).
+2. Vercel Cron automatically sends `Authorization: Bearer <CRON_SECRET>` on
+   the requests it triggers, which the route checks against your env var.
+3. To test it yourself outside of the schedule, hit
+   `/api/cron/release-reminders?secret=<CRON_SECRET>` directly.
+
+Without `CRON_SECRET` set, the endpoint refuses every request (fails closed)
+rather than running unauthenticated.
+
 ## Environment variables (`.env`)
 
 - `DATABASE_URL` — SQLite file path locally (`file:./dev.db`); a PostgreSQL connection string in production.
 - `AUTH_SECRET` — random secret used to sign session cookies. A value has already been generated for you; keep it out of git (it already is, via `.gitignore`) and don't reuse it elsewhere.
-- `RESEND_API_KEY` (optional) — enables real password-reset emails; see [Password reset & email](#password-reset--email) above.
-- `EMAIL_FROM` (optional) — the "from" address for reset emails once you've verified a domain with Resend.
+- `RESEND_API_KEY` (optional) — enables real password-reset and release-notification emails; see [Password reset & email](#password-reset--email) above.
+- `EMAIL_FROM` (optional) — the "from" address for those emails once you've verified a domain with Resend.
+- `CRON_SECRET` (needed for the reminder job) — see [Release notifications & the reminder cron](#release-notifications--the-reminder-cron) above.
 
 ## Deploying so you can use it from your phones
 
@@ -137,7 +166,8 @@ This app needs a real, persistent database in production — SQLite (a local fil
 5. **Set environment variables in Vercel** (Project Settings → Environment Variables):
    - `DATABASE_URL` — your Postgres connection string.
    - `AUTH_SECRET` — generate a new one for production, e.g. run `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` and paste the result.
-   - `RESEND_API_KEY` and `EMAIL_FROM` (optional) — for password-reset emails to actually send; see [Password reset & email](#password-reset--email).
+   - `RESEND_API_KEY` and `EMAIL_FROM` (optional) — for password-reset and release-notification emails to actually send; see [Password reset & email](#password-reset--email).
+   - `CRON_SECRET` — a long random string, needed for the release-reminder cron job to run at all; see [Release notifications & the reminder cron](#release-notifications--the-reminder-cron).
 6. **Deploy.** Vercel runs `npm install` (which runs `prisma generate` via the `postinstall` script) and `npm run build` automatically.
 7. **Register your account** at the deployed URL's `/register` page (or run `npm run create-account` locally with your production `DATABASE_URL` temporarily set in `.env`).
 8. Open the Vercel URL on your phones and add it to your home screen (Safari/Chrome → Share → Add to Home Screen) — it behaves like an app.

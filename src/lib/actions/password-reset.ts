@@ -3,20 +3,13 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { isRateLimited, recordAttempt, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
 import { hashResetToken } from "@/lib/resetToken";
+import { currentOrigin } from "@/lib/origin";
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
-
-async function currentOrigin() {
-  const headersList = await headers();
-  const host = headersList.get("host");
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  return `${protocol}://${host}`;
-}
 
 export async function requestPasswordResetAction(
   _prevState: { error?: string; success?: boolean } | undefined,

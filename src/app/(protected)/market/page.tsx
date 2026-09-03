@@ -63,6 +63,13 @@ export default async function MarketPage() {
         </p>
       </div>
 
+      <p className="text-sm text-white/70 -mb-2">
+        Argos and Smyths both have their own official "email me when back in stock" forms --
+        the links below find the product for you, then use their button yourself. Very and
+        Pokémon Center don't have a confirmed per-product alert, so those just open the site
+        to search manually.
+      </p>
+
       <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 divide-y divide-black/10">
         {products.length === 0 && (
           <p className="px-4 py-6 text-center text-sm text-slate-400">
@@ -71,11 +78,18 @@ export default async function MarketPage() {
         )}
         {products.map((p) => {
           const q = encodeURIComponent(p.name);
+          const slug = encodeURIComponent(
+            p.name
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/(^-|-$)/g, "")
+          );
           return (
             <div key={p.id} className="px-4 py-3 space-y-2">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
                 <span className="text-sm font-medium text-slate-800">{p.name}</span>
-                <div className="flex gap-3 text-sm">
+                <div className="flex gap-3 text-sm flex-wrap">
                   <a
                     className="text-indigo-600 hover:underline"
                     target="_blank"
@@ -91,6 +105,41 @@ export default async function MarketPage() {
                     href={`https://www.vinted.co.uk/catalog?search_text=${q}`}
                   >
                     Vinted
+                  </a>
+                  <a
+                    className="text-indigo-600 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://www.argos.co.uk/search/${slug}/`}
+                    title="Find the product, then use Argos's own 'email me when back in stock' button"
+                  >
+                    Argos
+                  </a>
+                  <a
+                    className="text-indigo-600 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://www.smythstoys.com/uk/en-gb/search?text=${q}`}
+                    title="Find the product, then use Smyths's own stock-availability notify form"
+                  >
+                    Smyths
+                  </a>
+                  <a
+                    className="text-indigo-600 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://www.very.co.uk/search/${slug}`}
+                  >
+                    Very
+                  </a>
+                  <a
+                    className="text-indigo-600 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://www.pokemoncenter.com/en-gb"
+                    title="No confirmed direct search link -- opens the UK storefront to search from"
+                  >
+                    Pokémon Center
                   </a>
                 </div>
               </div>

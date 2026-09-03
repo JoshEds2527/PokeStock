@@ -86,8 +86,11 @@ export function NavBar({
         </form>
       </aside>
 
-      {/* Mobile top bar: logo centered, dropdown menu on the right */}
-      <div className="md:hidden relative grid grid-cols-[2.25rem_1fr_2.25rem] items-center px-4 py-3 border-b border-white/30 bg-white/70 backdrop-blur-xl">
+      {/* Mobile top bar: logo centered, dropdown menu on the right.
+          `isolate` gives this bar its own stacking context so the dropdown's
+          z-index is always judged against the page content below it, never
+          accidentally lost to something else on the page. */}
+      <div className="md:hidden relative isolate z-40 grid grid-cols-[2.25rem_1fr_2.25rem] items-center px-4 py-3 border-b border-white/30 bg-white/70 backdrop-blur-xl">
         <div />
         <div className="flex items-center justify-center gap-2">
           <SessionBadge pokemonId={pokemonId} size={24} />

@@ -65,18 +65,26 @@ export function PurchaseHistoryTable({ rows }: { rows: PurchaseRow[] }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-white drop-shadow">Purchase history</h2>
-        <select
-          value={productFilter}
-          onChange={(e) => setProductFilter(e.target.value)}
-          className="text-xs rounded-lg border border-slate-300 px-2 py-1"
-        >
-          <option value="ALL">All products</option>
-          {productOptions.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/export/purchases"
+            className="text-xs rounded-lg border border-white/40 bg-white/70 px-2 py-1 text-slate-600 hover:bg-white"
+          >
+            Export CSV
+          </a>
+          <select
+            value={productFilter}
+            onChange={(e) => setProductFilter(e.target.value)}
+            className="text-xs rounded-lg border border-slate-300 px-2 py-1"
+          >
+            <option value="ALL">All products</option>
+            {productOptions.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 overflow-x-auto">

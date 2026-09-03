@@ -68,6 +68,12 @@ export function SalesTable({ rows }: { rows: SaleRow[] }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+        <a
+          href="/api/export/sales"
+          className="text-xs rounded-lg border border-white/40 bg-white/70 px-2 py-1 text-slate-600 hover:bg-white text-center"
+        >
+          Export CSV
+        </a>
         <select
           value={productFilter}
           onChange={(e) => setProductFilter(e.target.value)}

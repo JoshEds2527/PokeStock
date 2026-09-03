@@ -94,9 +94,9 @@ export function InventoryTable({ rows }: { rows: InventoryRow[] }) {
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
+          <thead className="bg-black/5 text-slate-600 text-xs uppercase">
             <tr>
               <SortHeader label="Product" sortKey="name" activeKey={sortKey} dir={sortDir} onClick={toggleSort} align="left" />
               <SortHeader label="In stock" sortKey="stock" activeKey={sortKey} dir={sortDir} onClick={toggleSort} />
@@ -106,7 +106,7 @@ export function InventoryTable({ rows }: { rows: InventoryRow[] }) {
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-black/10">
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-slate-400">

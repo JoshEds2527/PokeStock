@@ -49,7 +49,7 @@ export default async function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-900">Inventory</h1>
+      <h1 className="text-xl font-bold text-white drop-shadow">Inventory</h1>
 
       <div className="grid md:grid-cols-2 gap-4">
         <AddProductForm />

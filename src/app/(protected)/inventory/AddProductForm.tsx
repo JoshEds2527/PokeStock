@@ -26,7 +26,7 @@ export function AddProductForm() {
     <form
       ref={formRef}
       action={action}
-      className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3"
+      className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4 space-y-3"
     >
       <h2 className="text-sm font-semibold text-slate-700">Add product</h2>
       <input

@@ -33,8 +33,8 @@ export default async function ReleasesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Releases</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="text-xl font-bold text-white drop-shadow">Releases</h1>
+        <p className="text-sm text-white/70 mt-1 drop-shadow">
           A shared list of upcoming Pokémon product releases. Track only the ones you
           care about &mdash; everyone sees the same catalog, but your tracked list is yours alone.
         </p>
@@ -43,12 +43,12 @@ export default async function ReleasesPage() {
       <AddReleaseForm />
 
       <div>
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">Your tracked releases</h2>
+        <h2 className="text-lg font-semibold text-white drop-shadow mb-3">Your tracked releases</h2>
         <TrackedReleases rows={trackedRows} />
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">Browse all upcoming releases</h2>
+        <h2 className="text-lg font-semibold text-white drop-shadow mb-3">Browse all upcoming releases</h2>
         <ReleaseCatalog rows={rows} />
       </div>
     </div>

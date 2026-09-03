@@ -15,7 +15,7 @@ export function AddReleaseForm() {
     <form
       ref={formRef}
       action={action}
-      className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3"
+      className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4 space-y-3"
     >
       <h2 className="text-sm font-semibold text-slate-700">Add a release to the shared list</h2>
       <p className="text-xs text-slate-400 -mt-2">

@@ -25,7 +25,7 @@ export function NavBar({
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex md:flex-col md:w-56 border-r border-slate-200 bg-white px-4 py-6">
+      <aside className="hidden md:flex md:flex-col md:w-56 border-r border-white/30 bg-white/70 backdrop-blur-xl px-4 py-6">
         <div className="flex items-center gap-2 mb-1">
           <SessionBadge pokemonId={pokemonId} />
           <h1 className="text-lg font-bold text-slate-900">PokéStock</h1>
@@ -41,7 +41,7 @@ export function NavBar({
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
                   active
                     ? "bg-indigo-50 text-indigo-700"
-                    : "text-slate-600 hover:bg-slate-100"
+                    : "text-slate-600 hover:bg-white/60"
                 }`}
               >
                 <span>{link.icon}</span>
@@ -58,7 +58,7 @@ export function NavBar({
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+      <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-white/30 bg-white/70 backdrop-blur-xl sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <SessionBadge pokemonId={pokemonId} size={24} />
           <h1 className="text-base font-bold text-slate-900">PokéStock</h1>
@@ -69,7 +69,7 @@ export function NavBar({
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex z-20">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/70 backdrop-blur-xl border-t border-white/30 flex z-20">
         {links.map((link) => {
           const active = pathname === link.href;
           return (

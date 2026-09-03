@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { NavBar } from "@/components/NavBar";
+import { AppBackdrop } from "@/components/AppBackdrop";
 
 export default async function ProtectedLayout({
   children,
@@ -12,6 +13,7 @@ export default async function ProtectedLayout({
 
   return (
     <div className="min-h-screen pb-20 md:pb-0 md:flex">
+      <AppBackdrop pokemonId={session.pokemonId} />
       <NavBar userName={session.name} pokemonId={session.pokemonId} />
       <main className="flex-1 px-4 py-6 md:px-8 md:py-8 max-w-5xl mx-auto w-full">
         {children}

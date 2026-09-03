@@ -13,7 +13,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
+      <h1 className="text-xl font-bold text-white drop-shadow">Dashboard</h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Total spent" value={gbp.format(stats.totalSpent)} />
@@ -26,7 +26,7 @@ export default async function DashboardPage() {
         <StatCard label="Units in stock" value={String(stats.totalUnitsInStock)} />
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-4">
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4">
         <h2 className="text-sm font-semibold text-slate-700 mb-2">
           Spend vs revenue over time
         </h2>
@@ -34,7 +34,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4">
           <h2 className="text-sm font-semibold text-slate-700 mb-3">Recent purchases</h2>
           {stats.recentPurchases.length === 0 && (
             <p className="text-sm text-slate-400">No purchases logged yet.</p>
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
             ))}
           </ul>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4">
           <h2 className="text-sm font-semibold text-slate-700 mb-3">Recent sales</h2>
           {stats.recentSales.length === 0 && (
             <p className="text-sm text-slate-400">No sales logged yet.</p>

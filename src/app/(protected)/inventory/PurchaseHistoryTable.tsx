@@ -64,7 +64,7 @@ export function PurchaseHistoryTable({ rows }: { rows: PurchaseRow[] }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-700">Purchase history</h2>
+        <h2 className="text-sm font-semibold text-white drop-shadow">Purchase history</h2>
         <select
           value={productFilter}
           onChange={(e) => setProductFilter(e.target.value)}
@@ -79,9 +79,9 @@ export function PurchaseHistoryTable({ rows }: { rows: PurchaseRow[] }) {
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-x-auto">
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
+          <thead className="bg-black/5 text-slate-600 text-xs uppercase">
             <tr>
               <SortHeader label="Date" sortKey="purchaseDate" activeKey={sortKey} dir={sortDir} onClick={toggleSort} align="left" />
               <SortHeader label="Product" sortKey="productName" activeKey={sortKey} dir={sortDir} onClick={toggleSort} align="left" />
@@ -92,7 +92,7 @@ export function PurchaseHistoryTable({ rows }: { rows: PurchaseRow[] }) {
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-black/10">
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-6 text-center text-slate-400">

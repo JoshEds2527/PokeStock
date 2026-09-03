@@ -33,7 +33,7 @@ export default async function SalesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-900">Sales</h1>
+      <h1 className="text-xl font-bold text-white drop-shadow">Sales</h1>
 
       <AddSaleForm products={products.map((p) => ({ id: p.id, name: p.name }))} />
 

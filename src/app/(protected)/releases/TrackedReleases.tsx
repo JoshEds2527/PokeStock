@@ -30,7 +30,7 @@ export function TrackedReleases({ rows }: { rows: ReleaseRow[] }) {
   return (
     <div className="space-y-3">
       {sorted.length === 0 && (
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-white/60 drop-shadow">
           You&apos;re not tracking any releases yet — browse the shared list below and tap
           &quot;Track&quot; on anything you want to keep an eye on.
         </p>
@@ -38,7 +38,7 @@ export function TrackedReleases({ rows }: { rows: ReleaseRow[] }) {
       {sorted.map((r) => (
         <div
           key={r.id}
-          className="bg-white rounded-2xl border border-slate-200 p-4 flex items-start justify-between gap-3"
+          className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4 flex items-start justify-between gap-3"
         >
           <div>
             <div className="flex items-center gap-2 flex-wrap">

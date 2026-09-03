@@ -13,16 +13,16 @@ export default async function MarketPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-900">Market data</h1>
+      <h1 className="text-xl font-bold text-white drop-shadow">Market data</h1>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4 space-y-2">
         <p className="text-sm text-slate-600">
           Live eBay UK sold-listing prices and automated stock-alert monitoring are planned
           for phase 2. For now, here are quick manual lookup links for your products.
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100">
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 divide-y divide-black/10">
         {products.length === 0 && (
           <p className="px-4 py-6 text-center text-sm text-slate-400">
             Add products in Inventory to get quick lookup links here.

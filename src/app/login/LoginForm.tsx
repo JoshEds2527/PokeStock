@@ -10,7 +10,7 @@ export function LoginForm({ pokemonId }: { pokemonId: number }) {
   return (
     <form
       action={action}
-      className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4"
+      className="bg-white/70 backdrop-blur-xl shadow-xl rounded-2xl border border-white/40 p-6 space-y-4"
     >
       <input type="hidden" name="pokemonId" value={pokemonId} />
       <div>

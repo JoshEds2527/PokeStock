@@ -220,8 +220,32 @@ Remaining step:
 
 ## Phase 2 (not built yet)
 
-- **eBay UK sold-listing prices** via eBay's official Browse API (needs a free eBay developer account + API keys).
-- **Automated stock/price monitoring** for retailer and marketplace pages. Note: Vinted and most UK retailers (Smyths, Argos, Pokémon Center, etc.) have no public API, so this means scraping their pages, which usually breaches their Terms of Service and can get blocked. Worth deciding site-by-site whether it's worth the risk/fragility versus checking manually.
+The database already has `MarketListing` and `StockWatch` tables from phase 1
+(see `prisma/schema.prisma`), but nothing uses them yet — the `/market` page
+is still just manual eBay/Vinted search links. Working checklist:
+
+### eBay sold-listing prices
+
+- [ ] Create a free eBay Developer account and an application (gives Client ID/Secret).
+- [ ] **Decision needed:** eBay's Browse API only covers *active* listings, not sold ones. Actual sold-price history needs the Marketplace Insights API, which requires separate eBay approval (not automatically granted to new developer accounts). Need to check whether that approval is realistic, or fall back to a different data source/approach.
+- [ ] Server-side OAuth (client-credentials flow) to fetch and cache an eBay access token.
+- [ ] Function to query eBay for a product name and parse out price results.
+- [ ] Store results in the existing `MarketListing` table.
+- [ ] `/market` page: button per product to fetch live prices, showing recent results instead of just a search link.
+- [ ] Cache/rate-limit lookups so we don't burn through eBay's API call limits.
+
+### Automated stock monitoring
+
+- [ ] Decide which retailers to support first (Smyths, Argos, Pokémon Center UK, etc. — Josh to confirm priority list).
+- [ ] Per retailer: check for an official stock API/RSS feed; where there isn't one (most UK retailers), decide case-by-case whether scraping is worth the ToS/fragility risk versus checking manually.
+- [ ] Build the actual `StockWatch` UI — right now only the database table exists, there's no page to add/edit/remove a watch.
+- [ ] Build a checker job that visits each watched URL and updates `StockWatch.status`.
+- [ ] "Back in stock" email, reusing the existing email system.
+- [ ] Vercel Cron job to run the stock checker periodically (same pattern as the existing release-reminder cron).
+
+### Wrap-up
+
+- [ ] Document the new eBay app keys / any new environment variables in this README.
 
 ## Future: monetization (not built yet)
 

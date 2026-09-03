@@ -241,9 +241,9 @@ new retailers can be added later without a rewrite. **When work starts on
 this item: ask Josh which retailers to set up first** — don't assume a list.
 Then set each one up individually.
 
+- [x] Build the `StockWatch` UI — add/edit/delete a watch (retailer, product page URL, optional linked product, check interval, active toggle) on the Market page. No checking logic yet — it's just a managed list for now.
 - [ ] Ask Josh for the retailer list before building any retailer-specific logic.
 - [ ] Per retailer chosen: check for an official stock API/RSS feed; where there isn't one (most UK retailers), decide case-by-case whether scraping is worth the ToS/fragility risk versus checking manually.
-- [ ] Build the actual `StockWatch` UI — right now only the database table exists, there's no page to add/edit/remove a watch.
 - [ ] Build a generic checker job (one retailer "adapter" per site) that visits each watched URL/endpoint and updates `StockWatch.status`.
 - [ ] "Back in stock" email, reusing the existing email system.
 - [ ] Vercel Cron job to run the stock checker periodically (same pattern as the existing release-reminder cron).

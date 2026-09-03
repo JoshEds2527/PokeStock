@@ -1,11 +1,18 @@
 import { prisma } from "@/lib/db";
 import { AddSaleForm } from "./AddSaleForm";
 import { SalesTable, type SaleRow } from "./SalesTable";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function SalesPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const accountId = session.accountId;
+
   const [products, sales] = await Promise.all([
-    prisma.product.findMany({ orderBy: { name: "asc" } }),
+    prisma.product.findMany({ where: { accountId }, orderBy: { name: "asc" } }),
     prisma.sale.findMany({
+      where: { accountId },
       include: { product: true },
       orderBy: { saleDate: "desc" },
       take: 300,

@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/db";
 import { format } from "date-fns";
 
-export async function getDashboardStats() {
+export async function getDashboardStats(accountId: string) {
   const [purchases, sales] = await Promise.all([
-    prisma.purchase.findMany({ include: { product: true } }),
-    prisma.sale.findMany({ include: { product: true } }),
+    prisma.purchase.findMany({ where: { accountId }, include: { product: true } }),
+    prisma.sale.findMany({ where: { accountId }, include: { product: true } }),
   ]);
 
   const totalSpent = purchases.reduce((sum, p) => sum + p.quantity * p.unitCost, 0);

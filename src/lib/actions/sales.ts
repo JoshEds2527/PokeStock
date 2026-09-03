@@ -7,17 +7,17 @@ import { getSession } from "@/lib/auth";
 import { SalePlatform } from "@prisma/client";
 import type { ActionResult } from "@/lib/actions/inventory";
 
-async function requireUserId() {
+async function requireAccountId() {
   const session = await getSession();
   if (!session) redirect("/login");
-  return session.userId;
+  return session.accountId;
 }
 
 export async function addSaleAction(
   _prevState: ActionResult | undefined,
   formData: FormData
 ): Promise<ActionResult> {
-  const userId = await requireUserId();
+  const accountId = await requireAccountId();
 
   const productId = String(formData.get("productId") || "");
   const quantity = Number(formData.get("quantity") || 0);
@@ -33,8 +33,12 @@ export async function addSaleAction(
   if (unitSalePrice < 0 || Number.isNaN(unitSalePrice))
     return { error: "Enter a valid sale price." };
 
+  const product = await prisma.product.findFirst({ where: { id: productId, accountId } });
+  if (!product) return { error: "Product not found." };
+
   await prisma.sale.create({
     data: {
+      accountId,
       productId,
       quantity,
       unitSalePrice,
@@ -43,7 +47,6 @@ export async function addSaleAction(
       shippingCost: Number.isNaN(shippingCost) ? 0 : shippingCost,
       saleDate: saleDateRaw ? new Date(saleDateRaw) : new Date(),
       notes: notes || null,
-      createdById: userId,
     },
   });
 
@@ -56,7 +59,7 @@ export async function updateSaleAction(
   _prevState: ActionResult | undefined,
   formData: FormData
 ): Promise<ActionResult> {
-  await requireUserId();
+  const accountId = await requireAccountId();
 
   const id = String(formData.get("id") || "");
   const quantity = Number(formData.get("quantity") || 0);
@@ -72,8 +75,8 @@ export async function updateSaleAction(
   if (unitSalePrice < 0 || Number.isNaN(unitSalePrice))
     return { error: "Enter a valid sale price." };
 
-  await prisma.sale.update({
-    where: { id },
+  const result = await prisma.sale.updateMany({
+    where: { id, accountId },
     data: {
       quantity,
       unitSalePrice,
@@ -84,6 +87,7 @@ export async function updateSaleAction(
       notes: notes || null,
     },
   });
+  if (result.count === 0) return { error: "Sale not found." };
 
   revalidatePath("/sales");
   revalidatePath("/");
@@ -91,10 +95,10 @@ export async function updateSaleAction(
 }
 
 export async function deleteSaleAction(formData: FormData) {
-  await requireUserId();
+  const accountId = await requireAccountId();
   const id = String(formData.get("id") || "");
   if (!id) return;
-  await prisma.sale.delete({ where: { id } });
+  await prisma.sale.deleteMany({ where: { id, accountId } });
   revalidatePath("/sales");
   revalidatePath("/");
 }

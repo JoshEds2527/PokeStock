@@ -11,7 +11,7 @@ function getSecret() {
 }
 
 export type SessionPayload = {
-  userId: string;
+  accountId: string;
   email: string;
   name: string;
 };
@@ -49,7 +49,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret());
     return {
-      userId: payload.userId as string,
+      accountId: payload.accountId as string,
       email: payload.email as string,
       name: payload.name as string,
     };

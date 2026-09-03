@@ -7,17 +7,17 @@ import { getSession } from "@/lib/auth";
 import { ReleaseStatus } from "@prisma/client";
 import type { ActionResult } from "@/lib/actions/inventory";
 
-async function requireUserId() {
+async function requireAccountId() {
   const session = await getSession();
   if (!session) redirect("/login");
-  return session.userId;
+  return session.accountId;
 }
 
 export async function addReleaseAction(
   _prevState: ActionResult | undefined,
   formData: FormData
 ): Promise<ActionResult> {
-  await requireUserId();
+  const accountId = await requireAccountId();
 
   const productName = String(formData.get("productName") || "").trim();
   const retailer = String(formData.get("retailer") || "").trim();
@@ -31,6 +31,7 @@ export async function addReleaseAction(
 
   await prisma.releaseEvent.create({
     data: {
+      accountId,
       productName,
       retailer: retailer || null,
       releaseDate: new Date(releaseDateRaw),
@@ -45,10 +46,10 @@ export async function addReleaseAction(
 }
 
 export async function deleteReleaseAction(formData: FormData) {
-  await requireUserId();
+  const accountId = await requireAccountId();
   const id = String(formData.get("id") || "");
   if (!id) return;
-  await prisma.releaseEvent.delete({ where: { id } });
+  await prisma.releaseEvent.deleteMany({ where: { id, accountId } });
   revalidatePath("/releases");
 }
 
@@ -56,7 +57,7 @@ export async function updateReleaseAction(
   _prevState: ActionResult | undefined,
   formData: FormData
 ): Promise<ActionResult> {
-  await requireUserId();
+  const accountId = await requireAccountId();
 
   const id = String(formData.get("id") || "");
   const productName = String(formData.get("productName") || "").trim();
@@ -70,8 +71,8 @@ export async function updateReleaseAction(
   if (!productName) return { error: "Product name is required." };
   if (!releaseDateRaw) return { error: "Release date is required." };
 
-  await prisma.releaseEvent.update({
-    where: { id },
+  const result = await prisma.releaseEvent.updateMany({
+    where: { id, accountId },
     data: {
       productName,
       retailer: retailer || null,
@@ -81,16 +82,17 @@ export async function updateReleaseAction(
       notes: notes || null,
     },
   });
+  if (result.count === 0) return { error: "Release not found." };
 
   revalidatePath("/releases");
   return { success: true };
 }
 
 export async function updateReleaseStatusAction(formData: FormData) {
-  await requireUserId();
+  const accountId = await requireAccountId();
   const id = String(formData.get("id") || "");
   const status = String(formData.get("status") || "") as ReleaseStatus;
   if (!id || !status) return;
-  await prisma.releaseEvent.update({ where: { id }, data: { status } });
+  await prisma.releaseEvent.updateMany({ where: { id, accountId }, data: { status } });
   revalidatePath("/releases");
 }

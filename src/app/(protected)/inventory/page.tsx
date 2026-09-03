@@ -3,9 +3,15 @@ import { AddProductForm } from "./AddProductForm";
 import { AddPurchaseForm } from "./AddPurchaseForm";
 import { InventoryTable, type InventoryRow } from "./InventoryTable";
 import { PurchaseHistoryTable, type PurchaseRow } from "./PurchaseHistoryTable";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function InventoryPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
   const products = await prisma.product.findMany({
+    where: { accountId: session.accountId },
     include: { purchases: true, sales: true },
     orderBy: { createdAt: "desc" },
   });

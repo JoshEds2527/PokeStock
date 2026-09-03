@@ -1,11 +1,15 @@
 import { getDashboardStats } from "@/lib/stats";
 import { StatCard } from "@/components/StatCard";
 import { FinanceChart } from "@/components/charts/FinanceChart";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 const gbp = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
 
 export default async function DashboardPage() {
-  const stats = await getDashboardStats();
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const stats = await getDashboardStats(session.accountId);
 
   return (
     <div className="space-y-6">

@@ -1,7 +1,15 @@
 import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function MarketPage() {
-  const products = await prisma.product.findMany({ orderBy: { name: "asc" } });
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const products = await prisma.product.findMany({
+    where: { accountId: session.accountId },
+    orderBy: { name: "asc" },
+  });
 
   return (
     <div className="space-y-6">

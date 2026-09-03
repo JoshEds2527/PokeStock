@@ -1,9 +1,15 @@
 import { prisma } from "@/lib/db";
 import { AddReleaseForm } from "./AddReleaseForm";
 import { ReleasesList, type ReleaseRow } from "./ReleasesList";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function ReleasesPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
   const releases = await prisma.releaseEvent.findMany({
+    where: { accountId: session.accountId },
     orderBy: { releaseDate: "asc" },
   });
 

@@ -242,8 +242,8 @@ this item: ask Josh which retailers to set up first** — don't assume a list.
 Then set each one up individually.
 
 - [x] Build the `StockWatch` UI — add/edit/delete a watch (retailer, product page URL, optional linked product, check interval, active toggle) on the Market page. No checking logic yet — it's just a managed list for now.
-- [ ] Ask Josh for the retailer list before building any retailer-specific logic.
-- [ ] Per retailer chosen: check for an official stock API/RSS feed; where there isn't one (most UK retailers), decide case-by-case whether scraping is worth the ToS/fragility risk versus checking manually.
+- [x] Ask Josh for the retailer list. **Chosen retailers:** Smyths, Argos, Very UK, John Lewis, Pokémon Center, Savvi, Hamleys, Chaos Cards.
+- [ ] Per retailer above: check for an official stock API/RSS feed; where there isn't one, decide case-by-case whether scraping is worth the ToS/fragility risk versus checking manually. Research in progress.
 - [ ] Build a generic checker job (one retailer "adapter" per site) that visits each watched URL/endpoint and updates `StockWatch.status`.
 - [ ] "Back in stock" email, reusing the existing email system.
 - [ ] Vercel Cron job to run the stock checker periodically (same pattern as the existing release-reminder cron).

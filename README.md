@@ -18,7 +18,8 @@ from every other account.
 - **Dashboard** — total spent, net revenue, profit, units in stock, and a spend-vs-revenue-vs-profit chart over time.
 - **Inventory** — add products, log purchases ("stock in"), see current stock, average cost, and total spent per product. Full purchase history with edit/delete.
 - **Sales** — log sales with platform (eBay/Vinted/Facebook/Depop/in person), fees, and postage. Sortable, filterable, editable.
-- **Releases** — a shared catalog of upcoming product releases (visible to every account, deduplicated by product name + date), with a personal "tracked releases" list layered on top so each account only follows what it cares about. Only the account that added a release can edit or delete it from the shared catalog; any account can track/untrack it.
+- **Releases** — a shared catalog of upcoming product releases (visible to every account, deduplicated by product name + date), with a personal "tracked releases" list layered on top so each account only follows what it cares about. Only the **developer account** can add, edit, or delete entries in the shared catalog; every other account can only track/untrack.
+- **Admin** (`/admin`, developer account only) — lists every registered account (joined date, last login, product/sale counts) with a delete action, for removing inactive or unwanted accounts.
 - **Market** (placeholder) — quick manual links to eBay sold listings and Vinted search per product. Live automated market data and stock-alert monitoring are phase 2 (see below).
 
 Every list supports sorting and filtering, every entry can be edited in place, and every delete requires confirmation.
@@ -39,6 +40,25 @@ Every database query and mutation is scoped to the logged-in account's id, and
 every edit/delete action re-checks that the record actually belongs to that
 account before touching it — so one account can never read or modify another
 account's data, even by guessing IDs.
+
+### The developer account
+
+One account (currently `PsyJands@gmail.com`) has `isDeveloper: true` on its
+`Account` row. That flag is the source of truth for two things, both
+re-checked against the database on every request rather than trusted from a
+cached session cookie:
+
+- **Managing the shared release catalog** (`/releases`) — adding, editing, or
+  deleting entries. Every other account can still track/untrack releases,
+  just not change the shared list itself.
+- **The `/admin` page** — lists every registered account with join date,
+  last login, and product/sale counts, and can delete an account (and all
+  its data) for good. The nav only shows the "Admin" link for this account;
+  the page itself re-checks `isDeveloper` and redirects anyone else away.
+
+To grant or revoke it, update the `isDeveloper` column on that `Account` row
+directly in the database — there's no UI for it (deliberately: it's not
+something you'd want a compromised session to be able to grant itself).
 
 ## Local development
 

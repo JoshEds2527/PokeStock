@@ -17,6 +17,11 @@ export type SessionPayload = {
   // Randomly chosen once at login/register, kept for the life of the
   // session, and shown as the small logo badge throughout the app.
   pokemonId?: number;
+  // Cosmetic only (e.g. showing the Admin nav link) — set from a fresh DB
+  // read at login/register. Anything that actually gates an action must
+  // re-check the database, since a 30-day-old cookie could be stale if
+  // developer status changes mid-session.
+  isDeveloper?: boolean;
 };
 
 export async function createSessionToken(payload: SessionPayload) {
@@ -56,6 +61,7 @@ export async function getSession(): Promise<SessionPayload | null> {
       email: payload.email as string,
       name: payload.name as string,
       pokemonId: typeof payload.pokemonId === "number" ? payload.pokemonId : undefined,
+      isDeveloper: payload.isDeveloper === true,
     };
   } catch {
     return null;

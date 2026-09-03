@@ -11,10 +11,14 @@ export default async function ReleasesPage() {
   if (!session) redirect("/login");
   const accountId = session.accountId;
 
-  const releases = await prisma.releaseEvent.findMany({
-    include: { trackedBy: { where: { accountId } } },
-    orderBy: { releaseDate: "asc" },
-  });
+  const [account, releases] = await Promise.all([
+    prisma.account.findUnique({ where: { id: accountId }, select: { isDeveloper: true } }),
+    prisma.releaseEvent.findMany({
+      include: { trackedBy: { where: { accountId } } },
+      orderBy: { releaseDate: "asc" },
+    }),
+  ]);
+  const canManage = account?.isDeveloper ?? false;
 
   const rows: ReleaseRow[] = releases.map((r) => ({
     id: r.id,
@@ -24,7 +28,6 @@ export default async function ReleasesPage() {
     url: r.url,
     status: r.status,
     notes: r.notes,
-    isOwner: r.createdByAccountId === accountId,
     isTracked: r.trackedBy.length > 0,
   }));
 
@@ -40,16 +43,23 @@ export default async function ReleasesPage() {
         </p>
       </div>
 
-      <AddReleaseForm />
+      {canManage ? (
+        <AddReleaseForm />
+      ) : (
+        <p className="text-sm text-white/60 drop-shadow">
+          Only the PokéStock team can add or edit releases in the shared list — track
+          anything you&apos;re interested in below.
+        </p>
+      )}
 
       <div>
         <h2 className="text-lg font-semibold text-white drop-shadow mb-3">Your tracked releases</h2>
-        <TrackedReleases rows={trackedRows} />
+        <TrackedReleases rows={trackedRows} canManage={canManage} />
       </div>
 
       <div>
         <h2 className="text-lg font-semibold text-white drop-shadow mb-3">Browse all upcoming releases</h2>
-        <ReleaseCatalog rows={rows} />
+        <ReleaseCatalog rows={rows} canManage={canManage} />
       </div>
     </div>
   );

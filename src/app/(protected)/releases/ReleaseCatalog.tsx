@@ -11,7 +11,13 @@ const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short
 
 type SortKey = "releaseDate" | "productName";
 
-export function ReleaseCatalog({ rows }: { rows: ReleaseRow[] }) {
+export function ReleaseCatalog({
+  rows,
+  canManage,
+}: {
+  rows: ReleaseRow[];
+  canManage: boolean;
+}) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sortKey, setSortKey] = useState<SortKey>("releaseDate");
@@ -125,7 +131,7 @@ export function ReleaseCatalog({ rows }: { rows: ReleaseRow[] }) {
                       </button>
                     </form>
                   )}
-                  {r.isOwner && (
+                  {canManage && (
                     <>
                       <button
                         onClick={() => setEditingId(r.id)}

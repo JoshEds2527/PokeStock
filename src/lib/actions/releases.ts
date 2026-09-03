@@ -13,6 +13,14 @@ async function requireAccountId() {
   return session.accountId;
 }
 
+async function isDeveloperAccount(accountId: string) {
+  const account = await prisma.account.findUnique({
+    where: { id: accountId },
+    select: { isDeveloper: true },
+  });
+  return account?.isDeveloper ?? false;
+}
+
 async function trackForAccount(accountId: string, releaseId: string) {
   await prisma.trackedRelease.upsert({
     where: { accountId_releaseId: { accountId, releaseId } },
@@ -26,6 +34,9 @@ export async function addReleaseAction(
   formData: FormData
 ): Promise<ActionResult> {
   const accountId = await requireAccountId();
+  if (!(await isDeveloperAccount(accountId))) {
+    return { error: "Only the developer account can add releases to the shared list." };
+  }
 
   const productName = String(formData.get("productName") || "").trim();
   const retailer = String(formData.get("retailer") || "").trim();
@@ -40,8 +51,8 @@ export async function addReleaseAction(
   const releaseDate = new Date(releaseDateRaw);
 
   // Avoid cluttering the shared catalog with duplicates: if a release with
-  // the same product name and date already exists (added by any account),
-  // just track that one instead of creating a copy.
+  // the same product name and date already exists, just track that one
+  // instead of creating a copy.
   const candidates = await prisma.releaseEvent.findMany({ where: { releaseDate } });
   const normalized = productName.toLowerCase();
   const existing = candidates.find((r) => r.productName.trim().toLowerCase() === normalized);
@@ -74,10 +85,10 @@ export async function addReleaseAction(
 
 export async function deleteReleaseAction(formData: FormData) {
   const accountId = await requireAccountId();
+  if (!(await isDeveloperAccount(accountId))) return;
   const id = String(formData.get("id") || "");
   if (!id) return;
-  // Only the account that added a shared release may remove it entirely.
-  await prisma.releaseEvent.deleteMany({ where: { id, createdByAccountId: accountId } });
+  await prisma.releaseEvent.delete({ where: { id } });
   revalidatePath("/releases");
 }
 
@@ -86,6 +97,9 @@ export async function updateReleaseAction(
   formData: FormData
 ): Promise<ActionResult> {
   const accountId = await requireAccountId();
+  if (!(await isDeveloperAccount(accountId))) {
+    return { error: "Only the developer account can edit releases." };
+  }
 
   const id = String(formData.get("id") || "");
   const productName = String(formData.get("productName") || "").trim();
@@ -99,10 +113,8 @@ export async function updateReleaseAction(
   if (!productName) return { error: "Product name is required." };
   if (!releaseDateRaw) return { error: "Release date is required." };
 
-  // Only the account that added this shared release may edit it, so one
-  // account can't alter what every other account tracking it sees.
   const result = await prisma.releaseEvent.updateMany({
-    where: { id, createdByAccountId: accountId },
+    where: { id },
     data: {
       productName,
       retailer: retailer || null,
@@ -112,9 +124,7 @@ export async function updateReleaseAction(
       notes: notes || null,
     },
   });
-  if (result.count === 0) {
-    return { error: "You can only edit releases you added." };
-  }
+  if (result.count === 0) return { error: "Release not found." };
 
   revalidatePath("/releases");
   return { success: true };
@@ -122,13 +132,11 @@ export async function updateReleaseAction(
 
 export async function updateReleaseStatusAction(formData: FormData) {
   const accountId = await requireAccountId();
+  if (!(await isDeveloperAccount(accountId))) return;
   const id = String(formData.get("id") || "");
   const status = String(formData.get("status") || "") as ReleaseStatus;
   if (!id || !status) return;
-  await prisma.releaseEvent.updateMany({
-    where: { id, createdByAccountId: accountId },
-    data: { status },
-  });
+  await prisma.releaseEvent.updateMany({ where: { id }, data: { status } });
   revalidatePath("/releases");
 }
 

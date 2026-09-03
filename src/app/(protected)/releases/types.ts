@@ -6,7 +6,6 @@ export type ReleaseRow = {
   url: string | null;
   status: string;
   notes: string | null;
-  isOwner: boolean;
   isTracked: boolean;
 };
 

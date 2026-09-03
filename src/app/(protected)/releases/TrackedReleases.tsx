@@ -19,7 +19,13 @@ const dateFmt = new Intl.DateTimeFormat("en-GB", {
   year: "numeric",
 });
 
-export function TrackedReleases({ rows }: { rows: ReleaseRow[] }) {
+export function TrackedReleases({
+  rows,
+  canManage,
+}: {
+  rows: ReleaseRow[];
+  canManage: boolean;
+}) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const editingRow = rows.find((r) => r.id === editingId) ?? null;
 
@@ -66,8 +72,8 @@ export function TrackedReleases({ rows }: { rows: ReleaseRow[] }) {
             {r.notes && <p className="text-sm text-slate-500 mt-1">{r.notes}</p>}
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">
-            {r.isOwner && <StatusSelect id={r.id} status={r.status} />}
-            {r.isOwner && (
+            {canManage && <StatusSelect id={r.id} status={r.status} />}
+            {canManage && (
               <button
                 onClick={() => setEditingId(r.id)}
                 className="text-xs text-indigo-600 hover:text-indigo-800"
@@ -79,7 +85,7 @@ export function TrackedReleases({ rows }: { rows: ReleaseRow[] }) {
               <input type="hidden" name="releaseId" value={r.id} />
               <button className="text-xs text-slate-500 hover:text-slate-700">Untrack</button>
             </form>
-            {r.isOwner && (
+            {canManage && (
               <form action={deleteReleaseAction}>
                 <input type="hidden" name="id" value={r.id} />
                 <ConfirmSubmitButton

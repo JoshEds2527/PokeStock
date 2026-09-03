@@ -16,7 +16,11 @@ model Account {
   name          String
   email         String    @unique
   passwordHash  String
+  // The developer/admin account: the only one that can manage the shared
+  // release catalog, and the only one that can see/remove other accounts.
+  isDeveloper   Boolean   @default(false)
   createdAt     DateTime  @default(now())
+  lastLoginAt   DateTime?
 
   products        Product[]
   purchases       Purchase[]

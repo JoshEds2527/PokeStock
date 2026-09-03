@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/actions/auth";
 import { SessionBadge } from "@/components/SessionBadge";
 
-const links = [
+const baseLinks = [
   { href: "/", label: "Dashboard", icon: "📊" },
   { href: "/inventory", label: "Inventory", icon: "📦" },
   { href: "/sales", label: "Sales", icon: "💰" },
@@ -13,14 +13,19 @@ const links = [
   { href: "/market", label: "Market", icon: "🔎" },
 ];
 
+const adminLink = { href: "/admin", label: "Admin", icon: "🛠️" };
+
 export function NavBar({
   userName,
   pokemonId,
+  isDeveloper,
 }: {
   userName: string;
   pokemonId?: number;
+  isDeveloper?: boolean;
 }) {
   const pathname = usePathname();
+  const links = isDeveloper ? [...baseLinks, adminLink] : baseLinks;
 
   return (
     <>

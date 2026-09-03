@@ -34,11 +34,17 @@ export async function loginAction(
     return { error: "Incorrect email or password." };
   }
 
+  await prisma.account.update({
+    where: { id: account.id },
+    data: { lastLoginAt: new Date() },
+  });
+
   await setSessionCookie({
     accountId: account.id,
     email: account.email,
     name: account.name,
     pokemonId: resolvePokemonId(formData),
+    isDeveloper: account.isDeveloper,
   });
 
   redirect("/");
@@ -72,7 +78,7 @@ export async function registerAction(
 
   const passwordHash = await bcrypt.hash(password, 10);
   const account = await prisma.account.create({
-    data: { name, email, passwordHash },
+    data: { name, email, passwordHash, lastLoginAt: new Date() },
   });
 
   await setSessionCookie({
@@ -80,6 +86,7 @@ export async function registerAction(
     email: account.email,
     name: account.name,
     pokemonId: resolvePokemonId(formData),
+    isDeveloper: account.isDeveloper,
   });
 
   redirect("/");

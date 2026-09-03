@@ -15,7 +15,7 @@ export function AddPurchaseForm({ products }: { products: { id: string; name: st
     <form
       ref={formRef}
       action={action}
-      className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4 space-y-3"
+      className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/40 p-4 space-y-3 overflow-hidden"
     >
       <h2 className="text-sm font-semibold text-slate-700">Log purchase (stock in)</h2>
       <select

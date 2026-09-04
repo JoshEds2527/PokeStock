@@ -29,7 +29,7 @@ export function EbayPriceLookup({ productId }: { productId: string }) {
               <a href={listing.url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
                 {gbp.format(listing.price)}
               </a>{" "}
-              <span className="text-slate-400">
+              <span className="text-slate-900">
                 {listing.title.length > 50 ? `${listing.title.slice(0, 50)}...` : listing.title}
               </span>
             </li>

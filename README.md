@@ -205,8 +205,8 @@ other release) rather than silently accepted forever.
 - `RESEND_API_KEY` (optional) — enables real password-reset and release-notification emails; see [Password reset & email](#password-reset--email) above.
 - `EMAIL_FROM` (optional) — the "from" address for those emails once you've verified a domain with Resend.
 - `CRON_SECRET` (needed for the reminder job) — see [Release notifications & the reminder cron](#release-notifications--the-reminder-cron) above. The value currently in local `.env` is a dev-only placeholder — Vercel needs its own real random value.
-- `EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET` (optional, phase 2) — from an eBay Developer account application. Not set yet — Josh's eBay developer account is pending approval. Until both are set, the Market page's "Fetch eBay prices" button shows a friendly "not connected yet" message instead of erroring; see [Phase 2](#phase-2-in-progress) below.
-- `EBAY_ENV` (optional, phase 2) — `sandbox` (default) or `production`. Use `production` once real API keys are in.
+- `EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET` — set in both local `.env` and Vercel as of 2026-09-04, using **production** keys from Josh's approved eBay Developer account. Note: a fresh eBay keyset shows as "disabled" until you complete the **Marketplace Account Deletion** exemption (Alerts & Notifications → toggle "Exempted from Marketplace Account Deletion" → submit, since this app never stores eBay user data) — the OAuth token request 401s with `invalid_client` until that's done, which looks like a bad credential but isn't.
+- `EBAY_ENV` — set to `production` (not `sandbox`, which only returns fake test listings).
 
 ## Deploying so you can use it from your phones
 
@@ -252,13 +252,13 @@ Remaining step:
 
 ### eBay sold-listing prices
 
-- [ ] Create a free eBay Developer account and an application (gives Client ID/Secret). **Status: pending eBay's approval** (Josh applied 2026-09-03).
-- [ ] **Decision needed:** eBay's Browse API only covers *active* listings, not sold ones. Actual sold-price history needs the Marketplace Insights API, which requires separate eBay approval (not automatically granted to new developer accounts). Researching whether that approval is realistic while waiting on the account.
+- [x] Create a free eBay Developer account and an application (gives Client ID/Secret). Approved and keys generated 2026-09-04.
+- [x] **Decision:** eBay's Browse API only covers *active* listings, not sold ones. Actual sold-price history needs the separate Marketplace Insights API. Not pursued yet -- active-listing prices are live and useful on their own; revisit Marketplace Insights approval later if sold-price history turns out to matter enough.
 - [x] Server-side OAuth (client-credentials flow) to fetch and cache an eBay access token — `src/lib/ebay.ts`.
-- [x] Function to query eBay for a product name and parse out price results — `searchActiveListings()` in `src/lib/ebay.ts` (active listings only, per the decision above; `searchSoldListings()` is a deliberate stub until Marketplace Insights approval is confirmed).
+- [x] Function to query eBay for a product name and parse out price results — `searchActiveListings()` in `src/lib/ebay.ts` (active listings only, per the decision above; `searchSoldListings()` is a deliberate stub until/unless Marketplace Insights is pursued).
 - [x] Store results in the existing `MarketListing` table — see `fetchEbayPricesAction` in `src/lib/actions/market.ts`.
-- [x] `/market` page: "Fetch eBay prices" button per product (`EbayPriceLookup.tsx`). Shows a friendly "not connected yet" message until `EBAY_CLIENT_ID`/`EBAY_CLIENT_SECRET` are set (can't be tested end-to-end until the developer account is approved).
-- [ ] Cache/rate-limit lookups so we don't burn through eBay's API call limits — not yet needed since it isn't live; revisit once real keys are in and we see actual usage.
+- [x] `/market` page: "Fetch eBay prices" button per product (`EbayPriceLookup.tsx`). **Live and working** as of 2026-09-04, verified against real production eBay data (both the OAuth token request and a real Browse API search, e.g. real GBP prices for "Pokemon Scarlet Violet Booster Box").
+- [ ] Cache/rate-limit lookups so we don't burn through eBay's API call limits — not yet needed at current (very low, 2-person) usage; revisit if that changes.
 
 ### Automated stock/back-end monitoring
 

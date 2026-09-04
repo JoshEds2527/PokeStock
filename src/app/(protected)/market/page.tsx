@@ -130,9 +130,8 @@ export default async function MarketPage() {
         <div>
           <h2 className="text-lg font-bold text-white drop-shadow">Stock watches</h2>
           <p className="text-sm text-white">
-            Track a retailer's product page here. Automatic checking and back-in-stock alerts
-            are coming in a later step — for now this just keeps a list, and you can jump
-            straight to the page with the retailer link.
+            Track a retailer's product page here. Checked automatically once a day (plus a manual
+            "Check now" any time) and emails you the moment one flips from out of stock to in stock.
           </p>
         </div>
         <AddStockWatchForm products={products.map((p) => ({ id: p.id, name: p.name }))} />

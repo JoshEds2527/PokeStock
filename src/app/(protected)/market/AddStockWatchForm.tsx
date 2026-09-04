@@ -63,7 +63,8 @@ export function AddStockWatchForm({ products }: { products: { id: string; name: 
         {pending ? "Adding..." : "Add watch"}
       </button>
       <p className="text-xs text-slate-400">
-        This just tracks the page for now — automatic checking is coming in a later step.
+        Works on any product page that doesn't block automated requests — sites with stronger bot
+        protection will just show a check error instead of a false status.
       </p>
     </form>
   );

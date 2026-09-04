@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { runStockWatchCheck, type StockWatchCheckResult } from "@/lib/stockWatchChecker";
 import type { ActionResult } from "@/lib/actions/inventory";
 
 async function requireAccountId() {
@@ -108,4 +109,23 @@ export async function deleteStockWatchAction(formData: FormData) {
   if (!id) return;
   await prisma.stockWatch.deleteMany({ where: { id, accountId } });
   revalidatePath("/market");
+}
+
+export type { StockWatchCheckResult as CheckStockWatchResult };
+
+export async function checkStockWatchAction(
+  _prevState: StockWatchCheckResult | undefined,
+  formData: FormData
+): Promise<StockWatchCheckResult> {
+  const accountId = await requireAccountId();
+  const id = String(formData.get("id") || "");
+
+  // Ownership check stays here (session-scoped); the actual check logic is
+  // shared with the cron job via runStockWatchCheck.
+  const watch = await prisma.stockWatch.findFirst({ where: { id, accountId } });
+  if (!watch) return { error: "Watch not found." };
+
+  const result = await runStockWatchCheck(watch.id);
+  revalidatePath("/market");
+  return result;
 }

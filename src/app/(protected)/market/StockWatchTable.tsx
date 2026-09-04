@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { deleteStockWatchAction, updateStockWatchAction } from "@/lib/actions/stockwatch";
+import { checkStockWatchAction, deleteStockWatchAction, updateStockWatchAction } from "@/lib/actions/stockwatch";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { Modal } from "@/components/Modal";
 
@@ -75,44 +75,7 @@ export function StockWatchTable({
               </tr>
             )}
             {rows.map((row) => (
-              <tr key={row.id} className={row.active ? "" : "opacity-50"}>
-                <td className="px-4 py-2">
-                  <a
-                    href={row.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-indigo-600 hover:underline"
-                  >
-                    {row.retailerName}
-                  </a>
-                  {!row.active && <div className="text-xs text-slate-400">Paused</div>}
-                </td>
-                <td className="px-4 py-2 text-slate-600">{row.productName ?? "—"}</td>
-                <td className="px-4 py-2">
-                  <StatusBadge status={row.status} />
-                </td>
-                <td className="px-4 py-2 text-slate-500">
-                  {row.lastCheckedAt ? dateFmt.format(new Date(row.lastCheckedAt)) : "Never"}
-                </td>
-                <td className="px-4 py-2 text-right text-slate-500">{row.checkIntervalMinutes}m</td>
-                <td className="px-4 py-2 text-right whitespace-nowrap">
-                  <button
-                    onClick={() => setEditingId(row.id)}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 mr-3"
-                  >
-                    Edit
-                  </button>
-                  <form action={deleteStockWatchAction} className="inline">
-                    <input type="hidden" name="id" value={row.id} />
-                    <ConfirmSubmitButton
-                      confirmText={`Remove the watch on "${row.retailerName}"? This cannot be undone.`}
-                      className="text-xs text-red-500 hover:text-red-700"
-                    >
-                      Delete
-                    </ConfirmSubmitButton>
-                  </form>
-                </td>
-              </tr>
+              <StockWatchRow key={row.id} row={row} onEdit={() => setEditingId(row.id)} />
             ))}
           </tbody>
         </table>
@@ -124,6 +87,56 @@ export function StockWatchTable({
         )}
       </Modal>
     </div>
+  );
+}
+
+function StockWatchRow({ row, onEdit }: { row: StockWatchRow; onEdit: () => void }) {
+  const [state, action, pending] = useActionState(checkStockWatchAction, undefined);
+
+  return (
+    <tr className={row.active ? "" : "opacity-50"}>
+      <td className="px-4 py-2 align-top">
+        <a
+          href={row.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-indigo-600 hover:underline"
+        >
+          {row.retailerName}
+        </a>
+        {!row.active && <div className="text-xs text-slate-400">Paused</div>}
+        {state?.error && <div className="text-xs text-red-500 mt-1">{state.error}</div>}
+        {state?.backInStock && <div className="text-xs text-emerald-600 mt-1">Just came back in stock!</div>}
+      </td>
+      <td className="px-4 py-2 align-top text-slate-600">{row.productName ?? "—"}</td>
+      <td className="px-4 py-2 align-top">
+        <StatusBadge status={state?.status ?? row.status} />
+      </td>
+      <td className="px-4 py-2 align-top text-slate-500">
+        {row.lastCheckedAt ? dateFmt.format(new Date(row.lastCheckedAt)) : "Never"}
+      </td>
+      <td className="px-4 py-2 align-top text-right text-slate-500">{row.checkIntervalMinutes}m</td>
+      <td className="px-4 py-2 align-top text-right whitespace-nowrap">
+        <form action={action} className="inline">
+          <input type="hidden" name="id" value={row.id} />
+          <button type="submit" disabled={pending} className="text-xs text-indigo-600 hover:text-indigo-800 mr-3 disabled:opacity-60">
+            {pending ? "Checking..." : "Check now"}
+          </button>
+        </form>
+        <button onClick={onEdit} className="text-xs text-indigo-600 hover:text-indigo-800 mr-3">
+          Edit
+        </button>
+        <form action={deleteStockWatchAction} className="inline">
+          <input type="hidden" name="id" value={row.id} />
+          <ConfirmSubmitButton
+            confirmText={`Remove the watch on "${row.retailerName}"? This cannot be undone.`}
+            className="text-xs text-red-500 hover:text-red-700"
+          >
+            Delete
+          </ConfirmSubmitButton>
+        </form>
+      </td>
+    </tr>
   );
 }
 
